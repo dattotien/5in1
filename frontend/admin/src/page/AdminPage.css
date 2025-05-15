@@ -7,6 +7,7 @@
   margin-left: 1vh;
   margin-right: 1vh;
   border-radius: 20px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
 }
 .Menu {
   background-color: transparent;
@@ -38,7 +39,8 @@
 
 .menu-item {
   background-color: #0077b6;
-  font-size: 15px;
+  font-size: 14px;
+  min-width: 10vw;
   margin-top: 1.5vh !important;
   border-radius: 20px !important;
   color: white !important;
@@ -65,10 +67,26 @@
 }
 
 .header {
+  margin-top: 2vh;
+  margin-right: 1vw;
+  margin-left: 0.5vw;
   background-color: #0077b6;
   color: white;
-  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 25px;
   justify-content: center;
-  padding: 10px;
+  text-align: left;
   border-radius: 20px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+.ContentCard {
+  background-color: white;
+  border-radius: 20px;
+  margin-top: 2vh;
+  margin-left: 0.5vw;
+  margin-right: 1vw;
+  min-height: 84.7vh;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
 }

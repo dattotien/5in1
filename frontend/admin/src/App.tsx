@@ -2,9 +2,9 @@ import "./App.css";
 import LoginPage from "./page/LoginPage.tsx";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AdminPage from "./page/AdminPage.tsx";
-import Settings from "./page/Settings.tsx";
-import Attendance from "./page/Attendance.tsx";
-import StudentManagement from "./page/StudentManagement.tsx";
+import Settings from "./components/Content/Settings.tsx";
+import Attendance from "./components/Content/Attendance.tsx";
+import StudentManagement from "./components/Content/StudentManagement.tsx";
 function App() {
   return (
     <>
