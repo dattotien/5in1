@@ -1,4 +1,4 @@
-.box {
+.lbox {
   width: 50vw;
   min-height: 100vh;
   display: flex;
@@ -7,38 +7,38 @@
   background-color: #caf0f8;
 }
 
-.login-card {
+.llogin-card {
   align-items: center;
   height: 100%;
   width: 100%;
   justify-content: flex-start;
   background-color: transparent;
 }
-.logo-section {
+.llogo-section {
   width: 100%;
   align-items: center;
   background-color: transparent;
   justify-content: center;
 }
-.logo {
+.llogo {
   width: 8vw;
 }
-.divider {
+.ldivider {
   width: 4px;
   height: 80%;
   background-color: black;
 }
-.logo-text {
+.llogo-text {
   width: 100%;
   font-size: 25px;
   font-weight: bold;
 }
-.logo-text-section {
+.llogo-text-section {
   align-items: center;
   justify-content: center;
   background-color: transparent;
 }
-.title {
+.ltitle {
   font-size: 40px;
   font-weight: bold;
   text-align: center;

@@ -12,6 +12,10 @@ import "./AdminPage.css";
 import { Link } from "react-router-dom";
 import { Avatar } from "antd";
 const { Header, Content, Footer, Sider } = Layout;
+import { Route, Routes } from "react-router-dom";
+import Attendance from "./Attendance";
+import StudentManagement from "./StudentManagement";
+import Settings from "./Settings";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -33,19 +37,19 @@ function getItem(
 
 const items: MenuItem[] = [
   getItem(
-    <Link to="/attendance">Quản lý điểm danh</Link>,
+    <Link to="attendance">Quản lý điểm danh</Link>,
     "attendance",
     <CheckSquareOutlined />,
     "menu-item"
   ),
   getItem(
-    <Link to="/students">Quản lý sinh viên</Link>,
+    <Link to="students">Quản lý sinh viên</Link>,
     "studentmanagement",
     <TeamOutlined />,
     "menu-item"
   ),
   getItem(
-    <Link to="/settings">Cài đặt</Link>,
+    <Link to="settings">Cài đặt</Link>,
     "settings",
     <SettingOutlined />,
     "menu-item"
@@ -81,6 +85,11 @@ const App: React.FC = () => {
             <Breadcrumb.Item>User</Breadcrumb.Item>
             <Breadcrumb.Item>Bill</Breadcrumb.Item>
           </Breadcrumb>
+          <Routes>
+            <Route path="attendance" element={<Attendance />} />
+            <Route path="students" element={<StudentManagement />} />
+            <Route path="settings" element={<Settings />} />
+          </Routes>
         </Content>
         <Footer style={{ textAlign: "center" }}>
           Ant Design ©{new Date().getFullYear()} Created by Ant UED
