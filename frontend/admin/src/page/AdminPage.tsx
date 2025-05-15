@@ -1,0 +1,102 @@
+import React, { useState } from "react";
+import {
+  CheckSquareOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  UserOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import { Breadcrumb, Layout, Menu, Button } from "antd";
+import "./AdminPage.css";
+import { Link } from "react-router-dom";
+import { Avatar } from "antd";
+const { Header, Content, Footer, Sider } = Layout;
+import { Route, Routes } from "react-router-dom";
+import Attendance from "./Attendance";
+import StudentManagement from "./StudentManagement";
+import Settings from "./Settings";
+
+type MenuItem = Required<MenuProps>["items"][number];
+
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  className?: string,
+  children?: MenuItem[]
+): MenuItem {
+  return {
+    key,
+    icon,
+    children,
+    className,
+    label,
+  } as MenuItem;
+}
+
+const items: MenuItem[] = [
+  getItem(
+    <Link to="attendance">Quản lý điểm danh</Link>,
+    "attendance",
+    <CheckSquareOutlined />,
+    "menu-item"
+  ),
+  getItem(
+    <Link to="students">Quản lý sinh viên</Link>,
+    "studentmanagement",
+    <TeamOutlined />,
+    "menu-item"
+  ),
+  getItem(
+    <Link to="settings">Cài đặt</Link>,
+    "settings",
+    <SettingOutlined />,
+    "menu-item"
+  ),
+];
+
+const App: React.FC = () => {
+  return (
+    <Layout style={{ minHeight: "100vh background-color: #CAF0F8" }}>
+      <Sider className="site-layout">
+        <div className="logo">
+          <Avatar className="avatar" size={64} icon={<UserOutlined />} />
+          <p className="name">PGS. TS Trần Thu Hà</p>
+        </div>
+        <Menu
+          className="Menu"
+          defaultSelectedKeys={["1"]}
+          mode="vertical"
+          items={items}
+        />
+        <Button
+          type="primary"
+          icon={<LogoutOutlined />}
+          className="logout-button"
+        >
+          Đăng xuất
+        </Button>
+      </Sider>
+      <Layout>
+        <Header className="header"> Quản lý điểm danh</Header>
+        <Content style={{ margin: "0 16px" }}>
+          <Breadcrumb style={{ margin: "16px 0" }}>
+            <Breadcrumb.Item>User</Breadcrumb.Item>
+            <Breadcrumb.Item>Bill</Breadcrumb.Item>
+          </Breadcrumb>
+          <Routes>
+            <Route path="attendance" element={<Attendance />} />
+            <Route path="students" element={<StudentManagement />} />
+            <Route path="settings" element={<Settings />} />
+          </Routes>
+        </Content>
+        <Footer style={{ textAlign: "center" }}>
+          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+        </Footer>
+      </Layout>
+    </Layout>
+  );
+};
+
+export default App;
