@@ -10,12 +10,12 @@ import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, Button } from "antd";
 import "./AdminPage.css";
 import { Link } from "react-router-dom";
-import { Avatar } from "antd";
+import { Avatar, Card } from "antd";
 const { Header, Content, Footer, Sider } = Layout;
 import { Route, Routes } from "react-router-dom";
-import Attendance from "./Attendance";
-import StudentManagement from "./StudentManagement";
-import Settings from "./Settings";
+import Attendance from "../components/Content/Attendance";
+import StudentManagement from "../components/Content/StudentManagement";
+import Settings from "../components/Content/Settings";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -80,20 +80,15 @@ const App: React.FC = () => {
       </Sider>
       <Layout>
         <Header className="header"> Quản lý điểm danh</Header>
-        <Content style={{ margin: "0 16px" }}>
-          <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb>
-          <Routes>
-            <Route path="attendance" element={<Attendance />} />
-            <Route path="students" element={<StudentManagement />} />
-            <Route path="settings" element={<Settings />} />
-          </Routes>
+        <Content>
+          <Card className="ContentCard">
+            <Routes>
+              <Route path="attendance" element={<Attendance />} />
+              <Route path="students" element={<StudentManagement />} />
+              <Route path="settings" element={<Settings />} />
+            </Routes>
+          </Card>
         </Content>
-        <Footer style={{ textAlign: "center" }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
       </Layout>
     </Layout>
   );

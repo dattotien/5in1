@@ -10,19 +10,21 @@ function right_login() {
           <Form.Item
             label="Tên đăng nhập"
             name="username"
+            className="login-item"
             rules={[{ required: true, message: "Please input your username!" }]}
           >
-            <Input />
+            <Input className="login-input1" />
           </Form.Item>
           <Form.Item
+            className="login-item"
             label="Mật khẩu"
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password />
+            <Input.Password className="login-input2" />
           </Form.Item>
           <Form.Item name="remember" valuePropName="checked" label={null}>
-            <Checkbox>Nhớ mật khẩu</Checkbox>
+            <Checkbox className="login-checkbox">Nhớ mật khẩu</Checkbox>
           </Form.Item>
           <Form.Item label={null}>
             <Button className="login-button" type="primary" htmlType="submit">
