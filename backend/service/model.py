@@ -3,6 +3,7 @@ import torch
 import cv2
 import pymongo
 from facenet_pytorch import MTCNN, InceptionResnetV1
+import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
