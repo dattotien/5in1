@@ -1,0 +1,70 @@
+import torch
+import cv2
+import numpy as np
+import base64
+import pymongo
+from facenet_pytorch import MTCNN, InceptionResnetV1
+
+# Setup device and models
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+mtcnn = MTCNN(keep_all=True, device=device)
+resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
+
+# Connect to MongoDB 
+client = pymongo.MongoClient("mongodb+srv://dangminhnguyet2015:mongodb@cluster0.srvjgt8.mongodb.net/") 
+db = client["Attendances"]
+collection = db["students"]
+
+# Convert base64 string to OpenCV image
+def base64_to_image(base64_str):
+    if "," in base64_str:
+        base64_str = base64_str.split(",")[1]
+    img_data = base64.b64decode(base64_str)
+    np_arr = np.frombuffer(img_data, np.uint8)
+    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+    return img
+
+# Encode base64 to embeddings
+def encode_and_update_students():
+    students = collection.find({})
+
+    for student in students:
+        base64_images = student.get("images") 
+
+        if not base64_images:
+            print(f"[WARN] Missing images for {student.get('full_name')}")
+            continue
+
+        if not isinstance(base64_images, list):
+            base64_images = [base64_images]
+
+        all_embeddings = []
+
+        for img_b64 in base64_images:
+            img = base64_to_image(img_b64)
+            if img is None:
+                print(f"[WARN] Could not decode image for {student.get('full_name')}")
+                continue
+
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            faces = mtcnn(img_rgb)
+
+            if faces is None or len(faces) == 0:
+                print(f"[WARN] No face detected in one of {student.get('full_name')}'s images")
+                continue
+
+            for face in faces:
+                embedding = resnet(face.unsqueeze(0).to(device)).detach().cpu().numpy().flatten()
+                all_embeddings.append(embedding.tolist())
+
+        if all_embeddings:
+            collection.update_one(
+                {"_id": student["_id"]},
+                {"$set": {"image_encoding": all_embeddings}}
+            )
+            print(f"[INFO] Updated {len(all_embeddings)} encodings for {student.get('full_name')}")
+        else:
+            print(f"[INFO] No valid embeddings for {student.get('full_name')}")
+
+# Update encodings for each student in database
+encode_and_update_students()
