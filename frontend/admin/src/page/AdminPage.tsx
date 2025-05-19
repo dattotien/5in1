@@ -12,7 +12,7 @@ import "./AdminPage.css";
 import { Link } from "react-router-dom";
 import { Avatar, Card } from "antd";
 const { Header, Content, Footer, Sider } = Layout;
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Attendance from "../components/Content/Attendance";
 import StudentManagement from "../components/Content/StudentManagement";
 import Settings from "../components/Content/Settings";
@@ -57,6 +57,11 @@ const items: MenuItem[] = [
 ];
 
 const App: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/"); 
+  };
   return (
     <Layout style={{ minHeight: "100vh background-color: #CAF0F8" }}>
       <Sider className="site-layout">
@@ -72,6 +77,7 @@ const App: React.FC = () => {
         />
         <Button
           type="primary"
+          onClick={handleLogout}
           icon={<LogoutOutlined />}
           className="logout-button"
         >
@@ -79,7 +85,13 @@ const App: React.FC = () => {
         </Button>
       </Sider>
       <Layout>
-        <Header className="header"> Quản lý điểm danh</Header>
+        <Header className="header">
+          <Routes>
+            <Route path="attendance" element={<p>Quản lý điểm danh</p>} />
+            <Route path="students" element={<p>Quản lý sinh viên</p>} />
+            <Route path="settings" element={<p>Cài đặt</p>} />
+          </Routes>
+        </Header>
         <Content>
           <Card className="ContentCard">
             <Routes>
