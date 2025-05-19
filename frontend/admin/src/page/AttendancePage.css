@@ -1,0 +1,18 @@
+.attendance-page {
+  background-color: white;  /* nền trắng */
+  max-width: 900px;         /* max rộng giống SchedulePage */
+  margin: 24px auto;        /* căn giữa với margin trên/dưới */
+  padding: 24px 32px;       /* padding như SchedulePage */
+  border-radius: 8px;       /* bo góc */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* shadow nhẹ */
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  min-height: 500px;        /* bạn có thể tùy chỉnh */
+}
+
+.attendance-page h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #1e3a8a;
+  font-weight: 600;
+}

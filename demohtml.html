@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Recognition Test</title>
+</head>
+<body>
+    <h1>Webcam Face Recognition</h1>
+    <video id="video" autoplay muted width="640" height="480" style="border: 1px solid black;"></video>
+    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+    <img id="processed" width="640" height="480" style="border: 1px solid green; margin-top: 10px;" />
+
+    <div>
+        <p id="matchInfo" style="color: red; font-weight: bold;"></p>
+        <button onclick="confirmName()" style="padding: 10px 20px;">✅ Xác nhận</button>
+        <button onclick="cancelConfirm()" style="padding: 10px 20px;">❌ Hủy</button>
+    </div>
+
+    <script>
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = document.getElementById("processed");
+        const matchInfo = document.getElementById("matchInfo");
+
+        let ws;
+        let matchedStudentId = null;
+
+        async function initWebcam() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        }
+
+        function captureFrame() {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL("image/jpeg");
+        }
+
+        function confirmName() {
+    if (matchedStudentId) {
+        fetch("http://localhost:8000/attendance/stream-confirm", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                student_id: matchedStudentId,
+                action: "confirm"
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            matchInfo.textContent = data.message;
+            matchedStudentId = null;
+        });
+    }
+}
+
+function cancelConfirm() {
+    if (matchedStudentId) {
+        fetch("http://localhost:8000/attendance/stream-confirm", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                student_id: matchedStudentId,
+                action: "cancel"
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            matchInfo.textContent = data.message;
+            matchedStudentId = null;
+        });
+    }
+}
+
+        function connectWebSocket() {
+            ws = new WebSocket("ws://localhost:8000/ws");  // Điều chỉnh nếu FastAPI chạy ở cổng khác
+
+            ws.onopen = () => {
+                console.log("✅ WebSocket connected");
+
+                setInterval(() => {
+                    const frameData = captureFrame();
+                    ws.send(JSON.stringify({
+                        type: "frame",
+                        frame: frameData
+                    }));
+                }, 500); // Gửi mỗi 500ms
+            };
+
+            ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    console.log("Received WS message:", data);  // Thêm dòng này để debug
+
+    if (data.type === "frame") {
+        img.src = "data:image/jpeg;base64," + data.frame;
+    }
+
+    if (data.type === "match") {
+        matchedStudentId = data.student_id;
+        matchInfo.textContent = `🎯 Phát hiện: ${data.full_name} (ID: ${data.student_id})`;
+    }
+};
+
+            ws.onerror = (err) => {
+                console.error("WebSocket error:", err);
+            };
+
+            ws.onclose = () => {
+                console.log("🔌 WebSocket disconnected");
+            };
+        }
+
+        window.onload = () => {
+            initWebcam();
+            connectWebSocket();
+        };
+    </script>
+</body>
+</html>

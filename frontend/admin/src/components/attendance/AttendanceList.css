@@ -1,0 +1,24 @@
+.attendance-list table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+}
+
+.attendance-list th,
+.attendance-list td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.attendance-list th {
+  background-color: #1e3a8a;
+  color: white;
+}
+
+.attendance-list tbody tr:hover {
+  background-color: #f5f5f5;
+}

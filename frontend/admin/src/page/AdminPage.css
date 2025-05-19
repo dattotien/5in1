@@ -1,0 +1,92 @@
+.site-layout {
+  background: #1e3a8a;
+  min-height: 96vh;
+  min-width: 100%;
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+  margin-left: 1vh;
+  margin-right: 1vh;
+  border-radius: 20px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+}
+.Menu {
+  background-color: transparent;
+  border-radius: 0px;
+  margin-top: 2vh;
+}
+.avatar {
+  background: white;
+  align-items: center;
+  margin-top: 2vh;
+  color: #1e3a8a;
+}
+
+.name {
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  margin-left: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.logo {
+  width: 100%;
+  padding-top: 2vh;
+  min-height: 15vh;
+  text-align: center;
+}
+
+.menu-item {
+  background-color: #0077b6;
+  font-size: 14px;
+  min-width: 10vw;
+  margin-top: 1.5vh !important;
+  border-radius: 20px !important;
+  color: white !important;
+}
+
+.menu-item:hover {
+  background-color: #00b4d8 !important;
+  color: white !important;
+}
+.ant-menu-item-selected {
+  background-color: #23406a !important;
+}
+
+.logout-button {
+  background-color: #0077b6;
+  color: white;
+  min-height: 6vh;
+  border-radius: 20px;
+  font-size: 15px;
+  position: absolute;
+  bottom: 4vh;
+  left: 50%; /* cách đáy 20px */ /* đẩy ra giữa */
+  transform: translateX(-50%); /* căn giữa theo chiều ngang */
+}
+
+.header {
+  margin-top: 2vh;
+  margin-right: 1vw;
+  margin-left: 0.5vw;
+  background-color: #0077b6;
+  color: white;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 25px;
+  justify-content: center;
+  text-align: left;
+  border-radius: 20px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+.ContentCard {
+  background-color: white;
+  border-radius: 20px;
+  margin-top: 2vh;
+  margin-left: 0.5vw;
+  margin-right: 1vw;
+  min-height: 84.7vh;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+}

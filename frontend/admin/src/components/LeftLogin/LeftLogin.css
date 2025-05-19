@@ -1,0 +1,46 @@
+.lbox {
+  width: 50vw;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #caf0f8;
+}
+
+.llogin-card {
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  justify-content: flex-start;
+  background-color: transparent;
+}
+.llogo-section {
+  width: 100%;
+  align-items: center;
+  background-color: transparent;
+  justify-content: center;
+}
+.llogo {
+  width: 8vw;
+}
+.ldivider {
+  width: 4px;
+  height: 80%;
+  background-color: black;
+}
+.llogo-text {
+  width: 100%;
+  font-size: 25px;
+  font-weight: bold;
+}
+.llogo-text-section {
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+.ltitle {
+  font-size: 40px;
+  font-weight: bold;
+  text-align: center;
+  transform: translateY(30vh);
+}

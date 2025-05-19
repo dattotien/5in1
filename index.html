@@ -1,0 +1,41 @@
+<img id="result" style="width:640px; height:auto;" />
+
+<script>
+const socket = new WebSocket("ws://localhost:8000/ws");
+
+socket.onopen = () => {
+    // Khi kết nối WebSocket mở, bắt đầu lấy webcam và gửi frame
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        const video = document.createElement("video");
+        video.srcObject = stream;
+        video.play();
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Gửi frame đều đặn lên server
+        setInterval(() => {
+            if (video.videoWidth === 0) return;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0);
+
+            // Lấy frame dạng base64
+            const frame = canvas.toDataURL("image/jpeg");
+
+            socket.send(JSON.stringify({ frame }));
+        }, 300);
+    });
+};
+
+socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.frame) {
+        // Chỉ hiển thị frame đã xử lý từ server
+        document.getElementById("result").src = "data:image/jpeg;base64," + data.frame;
+    }
+};
+</script>
