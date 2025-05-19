@@ -26,8 +26,7 @@
   overflow: visible;
 }
 
-.llogin-card::before,
-.llogin-card::after {
+.llogin-card::before {
   content: "❀";
   position: absolute;
   color: #ff69b4;
@@ -35,40 +34,19 @@
   pointer-events: none;
   user-select: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  animation-fill-mode: forwards;
-  animation-play-state: paused;
+  animation: none;
 }
 
-.llogin-card::before {
+.llogin-card:hover::before {
+  opacity: 1;
+  animation: fallPetal 3s linear infinite;
   top: -20px;
-  left: 20%;
-  animation-name: fallPetal;
-  animation-duration: 3s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-delay: 0s;
-}
-
-.llogin-card::after {
-  top: -20px;
-  left: 70%;
-  animation-name: fallPetal;
-  animation-duration: 3s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-delay: 1.5s;
+  left: 20%; 
 }
 
 .llogin-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-}
-
-.llogin-card:hover::before,
-.llogin-card:hover::after {
-  opacity: 1;
-  animation-play-state: running;
 }
 
 @keyframes fallPetal {
