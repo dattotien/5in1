@@ -15,10 +15,10 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: nowrap; /* KHÔNG wrap để không làm tăng chiều cao header */
-  height: 65px;        /* cố định chiều cao */
+  height: 65px; /* cố định chiều cao */
   min-height: 65px;
   max-height: 65px;
-  line-height: 65px;   /* căn chữ giữa theo chiều cao */
+  line-height: 65px; /* căn chữ giữa theo chiều cao */
   box-sizing: border-box; /* tính padding trong height */
 }
 
@@ -75,33 +75,8 @@
 
 /* Nút đổi ngôn ngữ */
 .lang-toggle-btn {
-  background: none;
-  border: 1px solid white; /* thêm viền trắng */
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 0; /* không bo góc */
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-.lang-toggle-btn:hover {
-  border-color: #a0aec0; /* đổi màu viền khi hover */
-}
-
-.lang-toggle-btn:focus {
-  outline: none;
-  border-color: #63b3ed; /* viền xanh khi focus */
-  box-shadow: none;
-  border-radius: 0;
-}
-
-.lang-toggle-btn:active {
-  outline: none;
-  border-radius: 0;
-  box-shadow: none;
+  background-color: transparent;
+  border-color: transparent;
 }
 
 .user-main-content {

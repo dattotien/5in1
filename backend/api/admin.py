@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import base64
 
-from service.admin_service import (
+from backend.service.admin_service import (
     get_student_by_id,
     add_student_to_database,
     update_student,
