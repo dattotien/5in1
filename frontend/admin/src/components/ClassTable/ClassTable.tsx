@@ -17,15 +17,15 @@ interface Student {
 
 // Giả lập danh sách sinh viên của từng môn
 const studentDataMap: Record<string, Student[]> = {
-  CTDLGT01: [
+  INT2210_1: [
     { name: "Nguyễn Văn A", studentId: "SV001" },
     { name: "Trần Thị B", studentId: "SV002" },
   ],
-  OOP02: [
+  INT2204_1: [
     { name: "Lê Văn C", studentId: "SV003" },
     { name: "Phạm Thị D", studentId: "SV004" },
   ],
-  CSDL03: [
+  INT2211_1: [
     { name: "Hoàng Văn E", studentId: "SV005" },
     { name: "Đặng Thị F", studentId: "SV006" },
   ],
@@ -35,23 +35,23 @@ const data: SubjectData[] = [
   {
     key: 1,
     subjectName: "Cấu trúc dữ liệu và giải thuật",
-    classCode: "CTDLGT01",
+    classCode: "INT2210_1",
     schedule: "Thứ 2, 7:30 - 9:30",
-    classroom: "A101",
+    classroom: "301-G2",
   },
   {
     key: 2,
     subjectName: "Lập trình hướng đối tượng",
-    classCode: "OOP02",
+    classCode: "INT2204_1",
     schedule: "Thứ 4, 9:45 - 11:45",
-    classroom: "B202",
+    classroom: "103-G2",
   },
   {
     key: 3,
     subjectName: "Cơ sở dữ liệu",
-    classCode: "CSDL03",
+    classCode: "INT2211_1",
     schedule: "Thứ 6, 13:00 - 15:00",
-    classroom: "C303",
+    classroom: "101-G2",
   },
 ];
 

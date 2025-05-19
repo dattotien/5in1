@@ -16,6 +16,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Attendance from "../components/Content/Attendance";
 import StudentManagement from "../components/Content/StudentManagement";
 import Settings from "../components/Content/Settings";
+import FeedbackPage from "./FeedbackPage";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -60,7 +61,7 @@ const App: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    navigate("/"); 
+    navigate("/");
   };
   return (
     <Layout style={{ minHeight: "100vh background-color: #CAF0F8" }}>
@@ -97,7 +98,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="attendance" element={<Attendance />} />
               <Route path="students" element={<StudentManagement />} />
-              <Route path="settings" element={<Settings />} />
+              <Route path="settings" element={<FeedbackPage />} />
             </Routes>
           </Card>
         </Content>
