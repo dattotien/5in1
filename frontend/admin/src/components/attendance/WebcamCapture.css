@@ -1,0 +1,61 @@
+.webcam-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.camera-view {
+  width: 100%;
+  height: 360px; /* cố định chiều cao */
+  background-color: #e2e8f0; /* nền khi camera tắt */
+  border: none; /* bỏ viền */
+  border-radius: 0; /* bỏ bo góc */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.webcam-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0; /* bỏ bo góc */
+}
+
+.webcam-placeholder {
+  text-align: center;
+  color: #718096;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.camera-off-icon {
+  font-size: 48px;
+  color: #a0aec0;
+}
+
+.toggle-camera-btn {
+  width: 100%;
+  max-width: 180px;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 0; /* bỏ bo góc */
+  border: none; /* bỏ viền */
+  transition: background-color 0.3s ease;
+  background-color: #3182ce;
+  color: white;
+}
+
+.toggle-camera-btn:hover {
+  background-color: #2c5282;
+  border-color: transparent;
+}

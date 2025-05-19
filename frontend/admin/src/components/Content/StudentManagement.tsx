@@ -1,9 +1,17 @@
-function StudentManagement() {
+import React, { useState } from 'react';
+import CourseSectionsList from './CourseSectionsList.tsx';
+import StudentListInSection from './StudentListInSection.tsx';
+import ClassTable from '../ClassTable/ClassTable.tsx';
+
+const StudentManagementPage = () => {
+  const [selectedSection, setSelectedSection] = useState(null);
+
   return (
-    <div>
-      <h1>Student Management</h1>
-      <p>This is the student management page.</p>
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Danh sách lớp học phần</h2>
+      <ClassTable/>
     </div>
   );
-}
-export default StudentManagement;
+};
+
+export default StudentManagementPage;
