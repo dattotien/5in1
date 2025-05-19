@@ -22,14 +22,15 @@ def load_encoding_from_students():
     encoding_dict = {}
 
     for student in students:
-        name = student.get("full_name")
-        embeddings = student.get("image_encoding")
+        name = student.get("student_id")
+        embedding = student.get("image_encoding")  # singular
 
-        if not name or not embeddings:
+        if not name or not embedding or name=="22023xxx":
             continue
 
-        # Convert all embeddings back to np.array or keep as list
-        encoding_dict[name] = [np.array(emb) for emb in embeddings]
+        # Convert to numpy array
+        encoding_dict[name] = [np.array(embedding)]
 
     print(f"[INFO] Loaded encodings for {len(encoding_dict)} students.")
     return encoding_dict
+

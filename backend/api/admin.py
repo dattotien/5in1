@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import base64
 
-from backend.service.admin_service import (
+from service.admin_service import (
     get_student_by_id,
     add_student_to_database,
     update_student,
@@ -27,30 +27,8 @@ router = APIRouter()
 
 #Thêm sinh viên 
 @router.post("/add-student", response_model=ResponseModel)
-async def add_student(
-    student_id: str = Form(...),
-    name: str = Form(...),
-    full_name: str = Form(...),
-    file: Optional[UploadFile] = File(None),
-    image_base64: Optional[str] = Form(None),
-    face_encoding: Optional[str] = Form(None)
-):
-    # Nếu có file (upload hoặc webcam chuyển thành file)
-    if file:
-        image_bytes = await file.read()
-        # Chuyển file thành base64 để lưu vào database
-        image_base64 = "data:image/jpeg;base64," + base64.b64encode(image_bytes).decode()
-    # Nếu không có file, dùng image_base64 truyền lên
-    # Tạo dict dữ liệu sinh viên
-    student_data = {
-        "student_id": student_id,
-        "name": name,
-        "full_name": full_name,
-        "image_base64": image_base64,
-        "face_encoding": face_encoding
-    }
-    return await add_student_to_database(student_data)# async def add_student(student_data: StudentCreateModel):
-#     return await add_student_to_database(student_data.dict())
+async def add_student(student_data: dict):
+    return await add_student_to_database(student_data)
 
 #Sửa thông tin sinh viên
 @router.put("/update-student/{student_id}", response_model=ResponseModel)

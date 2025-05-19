@@ -1,13 +1,18 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Body
+from fastapi import APIRouter, UploadFile, File, HTTPException, Body, WebSocket, WebSocketDisconnect, FastAPI
 from typing import List, Optional
 from datetime import date
 from pydantic import BaseModel
 from backend.entities.attendance import Attendance
 from datetime import datetime
+import asyncio
+import base64
+import cv2
+import numpy as np
+import json
 
 from backend.service.face_service import (
-    compare_embeddings,
-    handle_face_upload
+    handle_face_upload,
+    handle_stream
 )
 
 from backend.service.attendance_service import (
@@ -17,43 +22,46 @@ from backend.service.attendance_service import (
 )
 
 from backend.entities.student import Student
-from backend.service.model import mtcnn, resnet, device
-# , known_students
+from backend.service.model import mtcnn, resnet, device, load_encoding_from_students
+known_students = load_encoding_from_students()
 
-router = APIRouter()
+app = FastAPI()
 
 # Biến toàn cục để quản lý trạng thái chờ xác nhận
 awaiting_confirmation = False
+pending_student_id = None
 
 class ResponseModel(BaseModel):
     success: bool
     message: str
     data: Optional[dict] = None
     
-@router.post("/scan-face-and-match", response_model=ResponseModel)
+# Upload ảnh
+@app.post("/scan-face-and-match", response_model=ResponseModel)
 async def scan_face_and_match(file: UploadFile = File(...)):
     if not file:
         raise HTTPException(status_code=400, detail="No file uploaded")
     
-    face_encoding = await handle_face_upload(file)
+    face_encoding = await handle_face_upload(mtcnn, resnet, device, file, known_students)
+
     if face_encoding["success"] == False:
         return ResponseModel(success=False, message=face_encoding["message"], data=None)
-        
-    is_match =  await compare_embeddings(face_encoding["face_encoding"])
-    if is_match["success"]:
-        is_attandance = await get_attendance_by_id(is_match["data"]["student_id"])
+    
+    if face_encoding["success"]:
+        is_attandance = await get_attendance_by_id(face_encoding["matched_name"])
         if is_attandance["success"]:
             return ResponseModel(success=False, message="Đã điểm danh hôm nay", data=is_attandance["data"])
             
         await add_attendance({
-            "student_id": is_match["data"]["student_id"],
+            "student_id": face_encoding["matched_name"],
             "status": True,
             "create_at": datetime.utcnow()
         })
         
         return ResponseModel(success=True, message="Điểm danh thành công", data=None)
-        
-@router.get("/get-all-attendances", response_model=ResponseModel)
+
+# Lấy danh sách điểm danh    
+@app.get("/get-all-attendances", response_model=ResponseModel)
 async def get_all_attendances():
     attendances = await get_attendances()
     
@@ -62,47 +70,105 @@ async def get_all_attendances():
     
     return ResponseModel(success=False, message=attendances["message"], data=None)
 
-@router.post("/attendance/stream-frame", response_model=ResponseModel)
-async def attendance_stream_frame(file: UploadFile = File(...)):
-    global awaiting_confirmation
-    if awaiting_confirmation:
-        return ResponseModel(success=False, message="Đang chờ xác nhận/hủy, không nhận diện người mới", data=None)
-    # Giả sử bạn đã có các đối tượng mtcnn, resnet, device, known_students được khởi tạo ở nơi khác
-    # Ở đây chỉ là ví dụ, bạn cần truyền đúng các đối tượng này vào hàm handle_face_upload
-    result = await handle_face_upload(mtcnn, resnet, device, file, known_students)
-    if result["success"] and result["matched_name"] != "Unknown":
-        # Lấy thông tin sinh viên từ tên (hoặc id)
-        student = await Student.find_one({"name": result["matched_name"]})
-        if student:
-            awaiting_confirmation = True
-            return ResponseModel(success=True, message="Nhận diện thành công", data={
-                "student_id": student.student_id,
-                "full_name": student.full_name,
-                "matched_name": result["matched_name"]
-            })
-        else:
-            return ResponseModel(success=False, message="Không tìm thấy thông tin sinh viên", data=None)
-    else:
-        return ResponseModel(success=False, message=result["message"], data=None)
+# Stream mặt  
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
 
-@router.post("/attendance/stream-confirm", response_model=ResponseModel)
+    input_queue = asyncio.Queue()
+    output_queue = asyncio.Queue()
+    match_queue = asyncio.Queue()
+
+    # Bắt đầu xử lý ảnh
+    asyncio.create_task(
+        handle_stream(input_queue, output_queue, match_queue, mtcnn, resnet, device, known_students)
+    )
+
+    global awaiting_confirmation, pending_student_id
+
+    try:
+        while True:
+            # Tạo task để chờ 2 luồng: websocket nhận và nhận match
+            receive_task = asyncio.create_task(websocket.receive_text())
+            match_task = asyncio.create_task(match_queue.get())
+
+            done, pending = await asyncio.wait(
+                [receive_task, match_task],
+                return_when=asyncio.FIRST_COMPLETED
+            )
+
+            for task in done:
+                result = task.result()
+
+                # Nếu là dữ liệu từ websocket
+                if task == receive_task:
+                    json_data = json.loads(result)
+
+                    if json_data.get("type") == "frame":
+                        base64_str = json_data.get("frame", "")
+                        if "," in base64_str:
+                            base64_str = base64_str.split(",")[1]
+                        img_data = base64.b64decode(base64_str)
+                        np_arr = np.frombuffer(img_data, np.uint8)
+                        img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+                        await input_queue.put(img)
+                        encoded_frame = await output_queue.get()
+
+                        await websocket.send_json({
+                            "type": "frame",
+                            "frame": encoded_frame
+                        })
+
+                # Nếu là kết quả matched từ handle_stream
+                elif task == match_task:
+                    matched_name = result
+                    print(matched_name)
+                    if matched_name != "Unknown" and not awaiting_confirmation:
+                        student = "Cit"
+                        # student = await Student.find_one({"student_id": matched_name})
+                        if student:
+                            awaiting_confirmation = True
+                            pending_student_id = "23020330" # student.student_id
+                            await websocket.send_json({
+                                "type": "match",
+                                "student_id": matched_name,
+                                "full_name": "Hà Anh"
+                            })
+        
+            # Hủy task chưa hoàn tất để tránh warning
+            for task in pending:
+                task.cancel()
+    except WebSocketDisconnect:
+        print("Client disconnected")
+        return
+    except Exception as e:
+        print(f"[WebSocket Error]: {e}")
+
+@app.post("/attendance/stream-confirm", response_model=ResponseModel)
 async def attendance_stream_confirm(
     student_id: str = Body(...),
     action: str = Body(...)  # "confirm" hoặc "cancel"
 ):
-    global awaiting_confirmation
+    global awaiting_confirmation, pending_student_id
     if not awaiting_confirmation:
         return ResponseModel(success=False, message="Không có sinh viên nào đang chờ xác nhận", data=None)
     if action == "confirm":
+        if get_attendance_by_id(pending_student_id)["success"] == True:        
+            awaiting_confirmation = False
+            pending_student_id = None
+            return ResponseModel(success=True, message="Sinh viên đã điểm danh trước đó", data=None)
         await add_attendance({
             "student_id": student_id,
             "status": True,
             "create_at": datetime.utcnow()
         })
         awaiting_confirmation = False
+        pending_student_id = None
         return ResponseModel(success=True, message="Xác nhận điểm danh thành công", data=None)
     elif action == "cancel":
         awaiting_confirmation = False
+        pending_student_id = None
         return ResponseModel(success=True, message="Đã hủy xác nhận, mời người tiếp theo", data=None)
     else:
         return ResponseModel(success=False, message="Hành động không hợp lệ", data=None)

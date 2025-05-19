@@ -49,15 +49,13 @@ def encode_frame(frame):
     return base64.b64encode(buffer).decode('utf-8') if ret else None
 
 # Xử lý stream
-async def handle_stream(input_queue, output_queue, mtcnn, resnet, device, known_students):
-    print("[Stream] Bắt đầu xử lý frame...")
+async def handle_stream(input_queue, output_queue, match_queue, 
+                        mtcnn, resnet, device, known_students):
     while True:
         frame = await input_queue.get()
-        print("[Stream] Đã nhận frame từ input_queue")
 
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         boxes, _ = mtcnn.detect(img_rgb)
-        print(f"[Stream] Phát hiện {len(boxes) if boxes is not None else 0} khuôn mặt")
 
         if boxes is not None:
             faces = mtcnn.extract(img_rgb, boxes, save_path=None)
@@ -65,7 +63,9 @@ async def handle_stream(input_queue, output_queue, mtcnn, resnet, device, known_
             for box, face in zip(boxes, faces):
                 face_embedding = resnet(face.unsqueeze(0).to(device)).detach().cpu().numpy().flatten()
                 matched_name = compare_embeddings(face_embedding, known_students)
-                print(f"[Stream] Nhận diện được: {matched_name}")
+
+                # Đẩy thông tin nhận diện vào match_queue
+                await match_queue.put(matched_name)
 
                 # Vẽ lên frame
                 box = [int(b) for b in box]
@@ -74,7 +74,4 @@ async def handle_stream(input_queue, output_queue, mtcnn, resnet, device, known_
                             cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
 
         encoded = encode_frame(frame)
-        if encoded is None:
-            print("[Stream] Cảnh báo: encode_frame trả về None")
         await output_queue.put(encoded)
-        print("[Stream] Frame đã được encode và đưa vào output_queue")

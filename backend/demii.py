@@ -7,6 +7,7 @@ import numpy as np
 import json
 
 known_students = load_encoding_from_students()
+app = FastAPI()
 
 def encode_frame(frame):
     ret, buffer = cv2.imencode('.jpg', frame)
@@ -22,16 +23,14 @@ def compare_embeddings(embedding, known_students, threshold=0.6):
     return "Unknown"
 
 # Xử lý stream
-async def handle_stream(input_queue, output_queue, mtcnn, resnet, device, known_students,
-                        ws: WebSocket, pending_name_wrapper, pending_name_lock):
-    print("[Stream] Bắt đầu xử lý frame...")
+# --- xử lý ảnh và nhận diện khuôn mặt ---
+async def handle_stream(input_queue, output_queue, match_queue,
+                        mtcnn, resnet, device, known_students):
     while True:
         frame = await input_queue.get()
-        print("[Stream] Đã nhận frame từ input_queue")
 
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         boxes, _ = mtcnn.detect(img_rgb)
-        print(f"[Stream] Phát hiện {len(boxes) if boxes is not None else 0} khuôn mặt")
 
         if boxes is not None:
             faces = mtcnn.extract(img_rgb, boxes, save_path=None)
@@ -39,79 +38,86 @@ async def handle_stream(input_queue, output_queue, mtcnn, resnet, device, known_
             for box, face in zip(boxes, faces):
                 face_embedding = resnet(face.unsqueeze(0).to(device)).detach().cpu().numpy().flatten()
                 matched_name = compare_embeddings(face_embedding, known_students)
-                print(f"[Stream] Nhận diện được: {matched_name}")
+                print(f"[handle_stream] matched_name: {matched_name}")
 
-                # Chỉ gửi nếu chưa có người đang chờ xác nhận
-                async with pending_name_lock:
-                    if pending_name_wrapper["value"] is None:
-                        await ws.send_json({
-                            "type": "match",
-                            "name": matched_name
-                        })
-                        pending_name_wrapper["value"] = matched_name
-                        print(f"[Stream] Gửi thông tin match: {matched_name}")
+                # Đẩy thông tin nhận diện vào match_queue
+                await match_queue.put(matched_name)
 
-                # Vẽ lên frame
+                # Vẽ kết quả
                 box = [int(b) for b in box]
                 cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
                 cv2.putText(frame, matched_name, (box[0], box[1] - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 2)
 
         encoded = encode_frame(frame)
-        if encoded is None:
-            print("[Stream] Cảnh báo: encode_frame trả về None")
         await output_queue.put(encoded)
-        print("[Stream] Frame đã được encode và đưa vào output_queue")
-
-app = FastAPI()
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    print("[WebSocket] Đang khởi tạo websocket...")
     await websocket.accept()
-    print("[WebSocket] Client đã kết nối")
 
     input_queue = asyncio.Queue()
     output_queue = asyncio.Queue()
+    match_queue = asyncio.Queue()
+    pending_name = None
 
-    pending_name_wrapper = {"value": None}
-    pending_name_lock = asyncio.Lock()
+    # Bắt đầu xử lý ảnh
     asyncio.create_task(
-        handle_stream(input_queue, output_queue, mtcnn, resnet, device, known_students,
-                      websocket, pending_name_wrapper, pending_name_lock)
+        handle_stream(input_queue, output_queue, match_queue, mtcnn, resnet, device, known_students)
     )
 
     try:
         while True:
-            data = await websocket.receive_text()
-            json_data = json.loads(data)
-            print(f"[WebSocket] Nhận data: {json_data.get('type')}")
+            # Tạo task để chờ 2 luồng: websocket nhận và nhận match
+            receive_task = asyncio.create_task(websocket.receive_text())
+            match_task = asyncio.create_task(match_queue.get())
 
-            if json_data.get("type") == "frame":
-                base64_str = json_data.get("frame", "")
-                if "," in base64_str:
-                    base64_str = base64_str.split(",")[1]
-                img_data = base64.b64decode(base64_str)
-                np_arr = np.frombuffer(img_data, np.uint8)
-                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            done, pending = await asyncio.wait(
+                [receive_task, match_task],
+                return_when=asyncio.FIRST_COMPLETED
+            )
 
-                if img is not None:
-                    await input_queue.put(img)
-                    print("[WebSocket] Đã đẩy frame vào input_queue")
+            for task in done:
+                result = task.result()
 
-                    encoded_frame = await output_queue.get()
-                    await websocket.send_json({
-                        "type": "frame",
-                        "frame": encoded_frame
-                    })
-                    print("[WebSocket] Đã gửi frame đã xử lý cho client")
-                else:
-                    print("[WebSocket] Cảnh báo: Không decode được ảnh")
+                # Nếu là dữ liệu từ websocket
+                if task == receive_task:
+                    json_data = json.loads(result)
 
-            elif json_data.get("type") == "confirm":
-                async with pending_name_lock:
-                    print("[WebSocket] Xác nhận từ người dùng, reset pending_name")
-                    pending_name_wrapper["value"] = None
+                    if json_data.get("type") == "frame":
+                        base64_str = json_data.get("frame", "")
+                        if "," in base64_str:
+                            base64_str = base64_str.split(",")[1]
+                        img_data = base64.b64decode(base64_str)
+                        np_arr = np.frombuffer(img_data, np.uint8)
+                        img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+                        await input_queue.put(img)
+                        encoded_frame = await output_queue.get()
+
+                        await websocket.send_json({
+                            "type": "frame",
+                            "frame": encoded_frame
+                        })
+
+                    elif json_data.get("type") == "confirm":
+                        pending_name = None  # reset sau xác nhận
+
+                # Nếu là kết quả matched từ handle_stream
+                elif task == match_task:
+                    matched_name = result
+                    print(f"[websocket] sending match: {matched_name}")
+                    if matched_name != "Unknown" and matched_name != pending_name:
+                        await websocket.send_json({
+                            "type": "match",
+                            "name": matched_name
+                        })
+                        pending_name = matched_name
+                        print(f"[WS] Gửi match: {matched_name}")
+
+            # Hủy task chưa hoàn tất để tránh warning
+            for task in pending:
+                task.cancel()
 
     except Exception as e:
         print(f"[WebSocket Error]: {e}")

@@ -20,8 +20,3 @@ class Database:
         if cls.client is None:
             raise Exception("Database not initialized")
         return cls.client.get_database("Attendances") 
-
-    @classmethod
-    def get_user_collection(cls):
-        db = cls.get_database()
-        return db.get_collection("users") 
