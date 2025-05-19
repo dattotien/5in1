@@ -14,25 +14,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: nowrap; /* KHÔNG wrap để không làm tăng chiều cao header */
-  height: 65px; /* cố định chiều cao */
+  flex-wrap: nowrap; 
+  height: 65px; 
   min-height: 65px;
   max-height: 65px;
-  line-height: 65px; /* căn chữ giữa theo chiều cao */
-  box-sizing: border-box; /* tính padding trong height */
+  box-sizing: border-box; 
 }
 
 .user-site-title {
   font-size: 20px;
   margin: 0;
   line-height: 1;
+  font-weight: bold;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
   gap: 20px;
-  flex-wrap: nowrap; /* không wrap */
+  flex-wrap: nowrap;
 }
 
 .nav-links a {
@@ -44,6 +44,11 @@
 
 .nav-links a:hover {
   text-decoration: underline;
+}
+
+.nav-links a.active {
+  border-bottom: 2px solid white;
+  font-weight: 600;
 }
 
 .nav-button {
@@ -76,7 +81,19 @@
 /* Nút đổi ngôn ngữ */
 .lang-toggle-btn {
   background-color: transparent;
-  border-color: transparent;
+  border: 1px solid white; 
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 4px 10px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.lang-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); 
+  border-color: #cbd5e1;
 }
 
 .user-main-content {

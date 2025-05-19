@@ -2,8 +2,8 @@
   display: flex;
   justify-content: center;
   padding: 24px;
-  background-color: #f0f2f5; /* nền tổng thể */
-  height: 100vh; /* full chiều cao màn hình */
+  background-color: #f0f2f5; 
+  height: 100vh; 
   box-sizing: border-box;
 }
 
@@ -21,6 +21,7 @@
 .feedback-container h2 {
   margin-top: 0;
   margin-bottom: 20px;
+  font-weight: bold;
   color: #1e3a8a;
 }
 
@@ -66,7 +67,7 @@
   border-radius: 4px;
   cursor: pointer;
   display: block;
-  margin-left: auto; /* đẩy nút sang giữa phải */
+  margin-left: auto; 
   transition: background-color 0.3s ease;
 }
 
