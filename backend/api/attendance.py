@@ -27,7 +27,7 @@ from backend.entities.student import Student
 from backend.service.model import mtcnn, resnet, device, load_encoding_from_students
 known_students = load_encoding_from_students()
 
-app = FastAPI()
+router = APIRouter()
 
 # Biến toàn cục để quản lý trạng thái chờ xác nhận
 global awaiting_confirmation, pending_student_id, last_matched_id
@@ -39,13 +39,13 @@ class ResponseModel(BaseModel):
     message: str
     data: Optional[dict] = None
 
-@app.on_event("startup")
+@router.on_event("startup")
 async def app_init():
     client = motor.motor_asyncio.AsyncIOMotorClient("mongodb+srv://dangminhnguyet2015:mongodb@cluster0.srvjgt8.mongodb.net/?retryWrites=true&w=majority")
     await init_beanie(database=client.Attendances, document_models=[Student])
 
 # Upload ảnh
-@app.post("/scan-face-and-match", response_model=ResponseModel)
+@router.post("/scan-face-and-match", response_model=ResponseModel)
 async def scan_face_and_match(file: UploadFile = File(...)):
     if not file:
         raise HTTPException(status_code=400, detail="No file uploaded")
@@ -69,7 +69,7 @@ async def scan_face_and_match(file: UploadFile = File(...)):
         return ResponseModel(success=True, message="Điểm danh thành công", data=None)
 
 # Lấy danh sách điểm danh    
-@app.get("/get-all-attendances", response_model=ResponseModel)
+@router.get("/get-all-attendances", response_model=ResponseModel)
 async def get_all_attendances():
     attendances = await get_attendances()
     
@@ -79,7 +79,7 @@ async def get_all_attendances():
     return ResponseModel(success=False, message=attendances["message"], data=None)
 
 # Stream mặt  
-@app.websocket("/ws")
+@router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
 
@@ -153,7 +153,7 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         print(f"[WebSocket Error]: {e}")
 
-@app.post("/attendance/stream-confirm", response_model=ResponseModel)
+@router.post("/attendance/stream-confirm", response_model=ResponseModel)
 async def attendance_stream_confirm(
     student_id: str = Body(...),
     action: str = Body(...)  # "confirm" hoặc "cancel"

@@ -79,10 +79,6 @@
   border-color: transparent;
 }
 
-.lang-toggle-btn:hover {
-  /* đổi màu viền khi hover */
-}
-
 .user-main-content {
   flex-grow: 1;
   background-color: #f0f2f5;

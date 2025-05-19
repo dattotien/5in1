@@ -9,7 +9,7 @@ import {
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, Button } from "antd";
 import "./AdminPage.css";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { Avatar, Card } from "antd";
 const { Header, Content, Footer, Sider } = Layout;
 import { Route, Routes, useNavigate } from "react-router-dom";
@@ -95,11 +95,7 @@ const App: React.FC = () => {
         </Header>
         <Content>
           <Card className="ContentCard">
-            <Routes>
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="students" element={<StudentManagement />} />
-              <Route path="settings" element={<FeedbackPage />} />
-            </Routes>
+            <Outlet />
           </Card>
         </Content>
       </Layout>

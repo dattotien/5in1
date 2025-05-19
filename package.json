@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "axios": "^1.9.0",
+    "fastapi": "^0.0.8",
+    "passlib": "^0.3.0"
+  }
+}
