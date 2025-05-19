@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Điểm danh khuôn mặt</title>
+  <style>
+    video, canvas, img { max-width: 100%; display: block; margin: 10px auto; }
+    #infoBox { border: 2px solid #333; padding: 10px; margin-top: 20px; display: none; text-align: center; }
+    button { margin: 0 10px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align: center;">Hệ thống điểm danh bằng khuôn mặt</h2>
+
+  <video id="video" autoplay muted playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <img id="processedFrame" alt="Processed frame" />
+
+  <div id="infoBox">
+    <p id="studentInfo"></p>
+    <button onclick="sendConfirm('confirm')">✅ Xác nhận</button>
+    <button onclick="sendConfirm('cancel')">❌ Huỷ</button>
+  </div>
+
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const img = document.getElementById("processedFrame");
+    const infoBox = document.getElementById("infoBox");
+    const studentInfo = document.getElementById("studentInfo");
+
+    let websocket;
+    let awaitingConfirmation = false;
+    let currentStudentId = null;
+
+    // Mở webcam
+    async function startVideo() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+    }
+
+    // Kết nối WebSocket
+    function startWebSocket() {
+      websocket = new WebSocket("ws://localhost:8000/ws");
+
+      websocket.onopen = () => {
+        console.log("WebSocket connected");
+        sendFrameLoop();
+      };
+
+      websocket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "frame") {
+          img.src = "data:image/jpeg;base64," + data.frame;
+        } else if (data.type === "match" && !awaitingConfirmation) {
+          studentInfo.textContent = `Phát hiện: ${data.full_name} (ID: ${data.student_id})`;
+          infoBox.style.display = "block";
+          awaitingConfirmation = true;
+          currentStudentId = data.student_id;
+        }
+      };
+
+      websocket.onclose = () => {
+        console.log("WebSocket disconnected");
+      };
+    }
+
+    // Gửi frame định kỳ
+    function sendFrameLoop() {
+      const ctx = canvas.getContext("2d");
+      const send = () => {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const dataURL = canvas.toDataURL("image/jpeg", 0.8);
+          websocket.send(JSON.stringify({ type: "frame", frame: dataURL }));
+        }
+        setTimeout(send, 200); // gửi mỗi 200ms
+      };
+      send();
+    }
+
+    // Gửi xác nhận hoặc huỷ
+    async function sendConfirm(action) {
+      if (!currentStudentId) return;
+
+      const res = await fetch("/attendance/stream-confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student_id: currentStudentId,
+          action: action
+        })
+      });
+
+      const result = await res.json();
+      alert(result.message);
+
+      // Reset trạng thái
+      awaitingConfirmation = false;
+      currentStudentId = null;
+      infoBox.style.display = "none";
+    }
+
+    // Bắt đầu hệ thống
+    startVideo();
+    startWebSocket();
+  </script>
+</body>
+</html>

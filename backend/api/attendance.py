@@ -9,6 +9,8 @@ import base64
 import cv2
 import numpy as np
 import json
+from beanie import init_beanie
+import motor.motor_asyncio
 
 from backend.service.face_service import (
     handle_face_upload,
@@ -28,6 +30,7 @@ known_students = load_encoding_from_students()
 app = FastAPI()
 
 # Biến toàn cục để quản lý trạng thái chờ xác nhận
+global awaiting_confirmation, pending_student_id, last_matched_id
 awaiting_confirmation = False
 pending_student_id = None
 
@@ -35,7 +38,12 @@ class ResponseModel(BaseModel):
     success: bool
     message: str
     data: Optional[dict] = None
-    
+
+@app.on_event("startup")
+async def app_init():
+    client = motor.motor_asyncio.AsyncIOMotorClient("mongodb+srv://dangminhnguyet2015:mongodb@cluster0.srvjgt8.mongodb.net/?retryWrites=true&w=majority")
+    await init_beanie(database=client.Attendances, document_models=[Student])
+
 # Upload ảnh
 @app.post("/scan-face-and-match", response_model=ResponseModel)
 async def scan_face_and_match(file: UploadFile = File(...)):
@@ -125,15 +133,15 @@ async def websocket_endpoint(websocket: WebSocket):
                     matched_name = result
                     print(matched_name)
                     if matched_name != "Unknown" and not awaiting_confirmation:
-                        student = "Cit"
-                        # student = await Student.find_one({"student_id": matched_name})
+                        # student = "Cit"
+                        student = await Student.find_one({"student_id": matched_name})
                         if student:
                             awaiting_confirmation = True
-                            pending_student_id = "23020330" # student.student_id
+                            pending_student_id = student.student_id
                             await websocket.send_json({
                                 "type": "match",
                                 "student_id": matched_name,
-                                "full_name": "Hà Anh"
+                                "full_name": student.full_name
                             })
         
             # Hủy task chưa hoàn tất để tránh warning
