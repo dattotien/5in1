@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from entities.user import User
-from service.user_service import login_user
+from backend.entities.user import User
+from backend.service.user_service import login_user
 
 router = APIRouter()
 

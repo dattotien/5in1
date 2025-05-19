@@ -1,6 +1,6 @@
-from config.database import Database
-from core.security import hash_password
-from entities.user import User
+from backend.config.database import Database
+from backend.core.security import hash_password
+from backend.entities.user import User
 
 async def user_to_dict(user: User):
     return {
