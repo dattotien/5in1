@@ -153,7 +153,6 @@ async def confirm_attendance(data: dict):
 
     if confirmed:
         # Cập nhật trạng thái điểm danh vào DB ở đây
-        await add_attendance(data["image"])
         print(f"✅ Xác nhận điểm danh cho sinh viên {student_id}")
         return {"success": True, "message": f"Đã xác nhận điểm danh cho {student_id}"}
     else:
