@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Realtime Attendance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen space-y-6 p-4">
+
+  <h1 class="text-3xl font-bold text-blue-600">Realtime Face Attendance</h1>
+
+  <video id="video" autoplay class="rounded shadow-md border-4 border-blue-500 w-96 h-72"></video>
+
+  <button id="snap" 
+          class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >Chụp & Gửi</button>
+
+  <p id="result" class="text-lg font-semibold text-gray-700 min-h-[2rem]"></p>
+  <img id="detected-frame" class="rounded shadow-md border border-gray-400 w-96 h-72 object-contain" alt="Detected face" />
+
+  <canvas id="canvas" width="640" height="480" class="hidden"></canvas>
+
+<script>
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const result = document.getElementById("result");
+  const snapBtn = document.getElementById("snap");
+  const frameImg = document.getElementById("detected-frame");
+  let isConfirming = false;
+
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then((stream) => {
+      video.srcObject = stream;
+      startAutoCapture();
+    })
+    .catch((err) => {
+      result.innerText = "Không thể mở webcam: " + err.message;
+      result.style.color = "red";
+    });
+
+  async function captureAndSend() {
+    if (isConfirming) {
+      console.log("Đang đợi xác nhận, bỏ qua lần gửi này");
+      return;
+    }
+
+    const context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL("image/jpeg");
+
+    result.innerText = "Đang xử lý...";
+    result.style.color = "black";
+    frameImg.src = "";
+
+    try {
+      console.log("Gửi ảnh lên server...");
+      const response = await fetch("http://127.0.0.1:8000/api/attendance/stream-confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: dataUrl }),
+      });
+
+      if (!response.ok) throw new Error("HTTP error " + response.status);
+
+      const data = await response.json();
+      console.log("Dữ liệu nhận từ server:", data);
+
+      result.innerText = data.message || "Không có phản hồi";
+      result.style.color = data.success ? "green" : "red";
+
+      if (data.data && data.data.frame) {
+        frameImg.src = data.data.frame;
+      }
+
+      if (data && data.data && data.data.need_confirm) {
+        console.log("Chuẩn bị hiển thị confirm box...");
+        isConfirming = true;
+
+        const confirmBox = confirm(`${data.message}`);
+        console.log("Người dùng chọn:", confirmBox);
+
+        // Gửi xác nhận đến API
+        const confirmResponse = await fetch("http://127.0.0.1:8000/api/attendance/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            student_id: data.data.student_id,
+            confirmed: confirmBox
+          }),
+        });
+
+        const confirmData = await confirmResponse.json();
+        console.log("Kết quả xác nhận:", confirmData);
+
+        if (confirmBox) {
+          result.innerText = `Sinh viên ${data.data.full_name} - MSV: ${data.data.student_id} đã điểm danh thành công`;
+          result.style.color = "green";
+        } else {
+          result.innerText = "Hủy điểm danh";
+          result.style.color = "red";
+        }
+
+        isConfirming = false;
+    }
+
+
+    } catch (err) {
+      console.error("Lỗi gửi dữ liệu:", err);
+      result.innerText = "Lỗi gửi dữ liệu đến server: " + err.message;
+      result.style.color = "red";
+    }
+  }
+
+  function startAutoCapture() {
+    captureAndSend();
+    setInterval(captureAndSend, 3000);
+  }
+
+  snapBtn.addEventListener("click", captureAndSend);
+</script>
+
+</body>
+</html>
