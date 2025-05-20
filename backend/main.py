@@ -9,7 +9,7 @@ from backend.config.database import Database
 app = FastAPI(title="Student Management API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Địa chỉ frontend của bạn
+    allow_origins=["*"],  # Địa chỉ frontend của bạn
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
