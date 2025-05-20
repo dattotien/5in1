@@ -42,7 +42,6 @@ const RecognitionResult: React.FC<RecognitionResultProps> = ({
 
       <div style={{ marginTop: "16px", display: "flex", gap: "8px" }}>
         <button
-          disabled={isConfirming}
           onClick={() => onConfirm(true)}
           style={{ 
             padding: "6px 12px",
