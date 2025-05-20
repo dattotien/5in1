@@ -7,7 +7,7 @@ class Database:
     @classmethod
     async def connect_to_database(cls):
         if cls.client is None:
-            cls.client = AsyncIOMotorClient("mongodb+srv://Phuonganh:mongodb@cluster0.srvjgt8.mongodb.net/")
+            cls.client = AsyncIOMotorClient("mongodb+srv://leduonguetai:mongodb@cluster0.srvjgt8.mongodb.net/")
             
     @classmethod
     async def close_database_connection(cls):
