@@ -1,6 +1,6 @@
 from backend.entities.attendance import Attendance
 from datetime import datetime, timedelta, date
-
+from backend.entities.student import Student
 from backend.service.face_service import (
     get_image_encoding,
     stream_face_recognition
@@ -107,6 +107,76 @@ async def get_attendances():
         "message": "Không có điểm danh nào",
         "data": None
     }
+
+async def confirm_student_attendance(student_id: str, confirmed: bool):
+    try:
+        # Kiểm tra sinh viên tồn tại
+        student = await Student.find_one({"student_id": student_id})
+        if not student:
+            return {
+                "success": False,
+                "message": "Không tìm thấy thông tin sinh viên",
+                "data": None
+            }
+
+        if confirmed:
+            # Kiểm tra đã điểm danh trong ngày chưa
+            today_start = datetime.combine(datetime.today(), datetime.min.time())
+            today_end = datetime.combine(datetime.today(), datetime.max.time())
+            
+            existing_attendance = await Attendance.find_one({
+                "student_id": student_id,
+                "create_at": {
+                    "$gte": today_start,
+                    "$lte": today_end
+                }
+            })
+            
+            if existing_attendance:
+                return {
+                    "success": False,
+                    "message": "Sinh viên đã điểm danh trong ngày hôm nay",
+                    "data": {
+                        "student_id": student_id,
+                        "full_name": student.full_name,
+                        "time": existing_attendance.create_at.strftime("%H:%M:%S"),
+                        "status": existing_attendance.status
+                    }
+                }
+
+            # Thêm bản ghi điểm danh mới
+            attendance = Attendance(
+                student_id=student_id,
+                status=True,
+                create_at=datetime.utcnow()
+            )
+            await attendance.insert()
+
+            return {
+                "success": True,
+                "message": f"Đã xác nhận điểm danh cho sinh viên {student.full_name}",
+                "data": {
+                    "student_id": student_id,
+                    "full_name": student.full_name,
+                    "time": attendance.create_at.strftime("%H:%M:%S"),
+                    "status": attendance.status
+                }
+            }
+        else:
+            return {
+                "success": True,
+                "message": f"Đã huỷ điểm danh cho sinh viên {student.full_name}",
+                "data": {
+                    "student_id": student_id,
+                    "full_name": student.full_name
+                }
+            }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Lỗi xử lý điểm danh: {str(e)}",
+            "data": None
+        }
 
 # async def get_attendances():
 #     try:

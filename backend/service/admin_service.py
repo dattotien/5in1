@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional, List
 from backend.entities.student import Student
 from datetime import datetime
-from backend.service.face_service import handle_face_upload
+from backend.service.face_service import get_image_encoding
 import base64
 
 
@@ -69,7 +69,7 @@ async def add_student_to_database(student_data: dict):
             "data": None
         }
     
-    image_encoding = [32, 213, 2131, 1231] # await handle_face_upload(student_data["image"])
+    image_encoding = await get_image_encoding(student_data["image"])
     student = Student(
         student_id=student_data["student_id"],
         name=student_data["name"],
