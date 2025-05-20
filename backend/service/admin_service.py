@@ -69,13 +69,19 @@ async def add_student_to_database(student_data: dict):
             "data": None
         }
     
-    image_encoding = await get_image_encoding(student_data["image"])
+    # Lấy đúng key ảnh base64 từ frontend
+    image_base64 = student_data.get("image_base64", "")
+    image_encoding = await get_image_encoding(image_base64)
+    # Đảm bảo image_encoding là list
+    if not isinstance(image_encoding, list):
+        image_encoding = image_encoding.tolist() if hasattr(image_encoding, "tolist") else []
+
     student = Student(
         student_id=student_data["student_id"],
         name=student_data["name"],
         full_name=student_data["full_name"],
-        image=student_data["image"],
-        image_encoding = image_encoding,
+        image=image_base64,
+        image_encoding=image_encoding,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
