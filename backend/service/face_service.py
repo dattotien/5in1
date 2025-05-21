@@ -106,42 +106,85 @@ async def stream_face_recognition(image: str, mtcnn=mtcnn, resnet=resnet, device
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     boxes, _ = mtcnn.detect(img_rgb)
 
-    frame_message = None
-    draw_box = False
-    if boxes is None or len(boxes) == 0:
-        frame_message = "Không phát hiện khuôn mặt"
-    elif len(boxes) > 1:
-        frame_message = "Có nhiều hơn một khuôn mặt trong khung hình"
-    else:
-        draw_box = True
-    
-    if draw_box:
-        faces = mtcnn(img_rgb)
-        if faces is None or len(faces) == 0:
-            frame_message = "Không nhận diện được khuôn mặt"
-        else:
-            face_tensor = faces[0] if isinstance(faces, list) else faces
-            image_encoding = resnet(face_tensor.unsqueeze(0).to(device)).detach().cpu().numpy().flatten()
-            image_encoding /= np.linalg.norm(image_encoding)
-            
-            box = boxes[0].astype(int)
+    # Vẽ bounding box cho tất cả mặt nếu có
+    if boxes is not None:
+        for box in boxes:
+            box = box.astype(int)
             cv2.rectangle(img, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+    else:
+        boxes = []
 
-            is_matched = await compare_embeddings(image_encoding)
-            if is_matched["success"]:
-                match_data = is_matched["data"]
-                id = match_data["student_id"]
-                cv2.putText(img, id, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
-                            (0, 255, 0), 2, cv2.LINE_AA)
+    # Nếu không có mặt, trả ảnh gốc kèm thông báo
+    if len(boxes) == 0:
+        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        buffered = BytesIO()
+        pil_img.save(buffered, format="JPEG")
+        frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
 
-    # Encode ảnh
-    img_rgb_drawn = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    pil_img = Image.fromarray(img_rgb_drawn)
+        return {
+            "success": False,
+            "message": "Không phát hiện khuôn mặt nào",
+            "data": {
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
+            }
+        }
+
+    # Nếu nhiều mặt, trả ảnh vẽ box nhiều mặt kèm thông báo
+    if len(boxes) > 1:
+        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        buffered = BytesIO()
+        pil_img.save(buffered, format="JPEG")
+        frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+        return {
+            "success": False,
+            "message": f"Phát hiện {len(boxes)} khuôn mặt trong video",
+            "data": {
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
+            }
+        }
+
+    # 1 mặt, xử lý nhận dạng
+    faces = mtcnn(img_rgb)
+    if faces is None or len(faces) == 0:
+        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        buffered = BytesIO()
+        pil_img.save(buffered, format="JPEG")
+        frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+        return {
+            "success": False,
+            "message": "Không nhận diện được khuôn mặt",
+            "data": {
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
+            }
+        }
+    
+    image_encoding = resnet(faces[0].unsqueeze(0).to(device)).detach().cpu().numpy().flatten()
+    
+    # Mặc định là không match
+    is_matched = {"success": False}
+    match_data = None
+
+    if image_encoding is not None and len(image_encoding) > 0:
+        is_matched = await compare_embeddings(image_encoding)
+
+        if is_matched["success"]:
+            match_data = is_matched["data"]
+            id = match_data["student_id"]
+            box = boxes[0].astype(int)
+            cv2.putText(img, id, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
+                        (0, 255, 0), 2, cv2.LINE_AA)
+
+    pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     buffered = BytesIO()
     pil_img.save(buffered, format="JPEG")
     frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
 
-    if is_matched.get("success", False):
+    if is_matched["success"]:
         return {
             "success": True,
             "message": f"Phát hiện sinh viên: {match_data['full_name']} ({match_data['student_id']}). Có đúng là bạn vừa điểm danh không?",
@@ -156,11 +199,13 @@ async def stream_face_recognition(image: str, mtcnn=mtcnn, resnet=resnet, device
     else:
         return {
             "success": False,
-            "message": frame_message or "Không tìm thấy sinh viên trùng khớp với khuôn mặt",
+            "message": "Không tìm thấy sinh viên trùng khớp với khuôn mặt",
             "data": {
-                "frame": "data:image/jpeg;base64," + frame_with_box_base64
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
             }
         }
+
 
     
 # Xử lý stream
