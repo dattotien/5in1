@@ -98,6 +98,7 @@ async def get_requests_from_database():
         request_dictionaries = {}
         for request in requests:
             request_dictionaries[request.student_id] = {
+                "student_id": request.student_id,
                 "heading": request.heading,
                 "message": request.message,
                 "create_at": request.create_at,
@@ -150,6 +151,7 @@ async def get_requests_by_student_id(student_id: str):
         request_dictionaries = {}
         for request in requests:
             request_dictionaries[request.heading] = {
+                "student_id": request.student_id,
                 "heading": request.heading,
                 "message": request.message,
                 "create_at": request.create_at,

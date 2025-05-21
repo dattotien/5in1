@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from beanie import init_beanie
-from backend.api import auth, admin, student, attendance
+from backend.api import auth, admin, student, attendance, user
 from backend.entities.student import Student
 from backend.entities.attendance import Attendance
 from backend.config.database import Database
@@ -11,7 +11,7 @@ from backend.entities.message import Message
 app = FastAPI(title="Student Management API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Địa chỉ frontend của bạn
+    allow_origins=["*"],  # hoặc thay * bằng domain frontend của bạn
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,7 +20,7 @@ app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(attendance.router, prefix="/api/attendance", tags=["Attendance"])
 app.include_router(attendance.router, prefix="/api/student", tags=["Student"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
-
+app.include_router(user.router, prefix="/api/user", tags=["User"])
 @app.on_event("startup")
 async def startup_event():
     # Kết nối database

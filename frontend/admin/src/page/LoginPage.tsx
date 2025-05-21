@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { Card, Checkbox, Alert } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./LoginPage.css";
 function LoginPage() {
   const [loginError, setLoginError] = useState(false);
   const navigate = useNavigate();
