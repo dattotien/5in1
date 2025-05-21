@@ -5,6 +5,7 @@ from datetime import datetime
 
 class Attendance(Document):
     student_id: str
+    full_name: str
     status: bool = True  
     create_at: datetime = Field(default_factory=datetime.utcnow)
     

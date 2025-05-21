@@ -9,6 +9,7 @@ from backend.service.face_service import (
 async def attendance_to_dict(attendance: Attendance):
     return {
         "student_id": attendance.student_id,
+        "full_name": attendance.full_name,
         "status": attendance.status,
         "create_at": attendance.create_at
     }
@@ -44,6 +45,7 @@ async def add_attendance(image: str):
         
         attendance = Attendance(
             student_id=notification["data"]["student_id"],
+            full_name=notification["data"]["full_name"],
             status=True,
             create_at=time_obj
         )
