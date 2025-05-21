@@ -6,7 +6,6 @@ from facenet_pytorch import MTCNN, InceptionResnetV1
 import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 # Model MTCNN -> detect + crop faces
 mtcnn = MTCNN(keep_all=True, device=device)
 

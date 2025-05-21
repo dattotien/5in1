@@ -147,7 +147,6 @@ const StudentTable: React.FC = () => {
     });
   };
 
-  // Đưa fetchStudents ra ngoài để có thể gọi ở nhiều nơi
   const fetchStudents = async () => {
     try {
       setLoading(true);
