@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-
 import { Tabs } from "antd";
 
-import WebcamCapture from "./WebcamCapture";
-import RecognitionResult from "./RecognitionResult";
+import StreamAttendance from "./StreamAttendance";
 import ImageUpload from "./ImageUpload";
 import AttendanceList from "./AttendanceList";
-
-import "./AttendanceTabs.css";
 
 const { TabPane } = Tabs;
 
@@ -23,14 +19,7 @@ const AttendanceTabs: React.FC = () => {
         size="middle"
       >
         <TabPane tab="Stream" key="stream">
-          <div className="stream-container">
-            <div className="webcam-area">
-              <WebcamCapture />
-            </div>
-            <div className="recognition-area">
-              <RecognitionResult />
-            </div>
-          </div>
+          <StreamAttendance />
         </TabPane>
 
         <TabPane tab="Upload" key="upload">

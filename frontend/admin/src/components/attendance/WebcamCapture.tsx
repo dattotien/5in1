@@ -1,40 +1,40 @@
-import { useRef, useState } from 'react';
-import Webcam from 'react-webcam';
-import { Button } from 'antd';
-import { CameraOutlined, VideoCameraAddOutlined } from '@ant-design/icons';
-import './WebcamCapture.css';
+// WebcamCapture.tsx
+import React from "react";
 
-export default function WebcamCapture() {
-  const webcamRef = useRef<Webcam>(null);
-  const [isCameraOn, setIsCameraOn] = useState(false);
+interface WebcamCaptureProps {
+  frameSrc?: string;
+}
 
+const WebcamCapture: React.FC<WebcamCaptureProps> = ({ frameSrc }) => {
   return (
-    <div className="webcam-container">
-      <div className="camera-view">
-        {isCameraOn ? (
-          <Webcam
-            audio={false}
-            ref={webcamRef}
-            screenshotFormat="image/jpeg"
-            className="webcam-video"
-            videoConstraints={{ facingMode: 'user' }}
-          />
-        ) : (
-          <div className="webcam-placeholder">
-            <VideoCameraAddOutlined className="camera-off-icon" />
-            <p>Camera đang tắt</p>
-          </div>
-        )}
-      </div>
-      
-      <Button
-        type="primary"
-        icon={isCameraOn ? <VideoCameraAddOutlined /> : <CameraOutlined />}
-        onClick={() => setIsCameraOn(!isCameraOn)}
-        className="toggle-camera-btn"
-      >
-        {isCameraOn ? 'Tắt camera' : 'Bật camera'}
-      </Button>
+    <div style={{ 
+      width: "100%", 
+      height: "480px", 
+      borderRadius: "8px", 
+      border: "4px solid #3b82f6",
+      overflow: "hidden",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "#f0f0f0"
+    }}>
+      {frameSrc ? (
+        <img
+          src={frameSrc}
+          alt="Frame nhận diện"
+          style={{ 
+            width: "100%", 
+            height: "100%", 
+            objectFit: "contain" 
+          }}
+        />
+      ) : (
+        <div style={{ color: "#666", textAlign: "center" }}>
+          Đang chờ nhận diện...
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default WebcamCapture;

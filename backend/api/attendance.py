@@ -21,7 +21,8 @@ from backend.service.face_service import (
 from backend.service.attendance_service import (
     get_attendance_by_id,
     add_attendance,
-    get_attendances
+    get_attendances,
+    confirm_student_attendance
 )
 
 router = APIRouter()
@@ -36,28 +37,7 @@ class ResponseModel(BaseModel):
 async def scan_face_and_match(data: dict):
     return await add_attendance(data["image"])
 
-# @router.post("/scan-face-and-match", response_model=ResponseModel)
-# async def scan_face_and_match(file: UploadFile = File(...)):
-#     if not file:
-#         raise HTTPException(status_code=400, detail="No file uploaded")
-    
-#     face_encoding = await handle_face_upload(mtcnn, resnet, device, file, known_students)
 
-#     if face_encoding["success"] == False:
-#         return ResponseModel(success=False, message=face_encoding["message"], data=None)
-    
-#     if face_encoding["success"]:
-#         is_attandance = await get_attendance_by_id(face_encoding["matched_name"])
-#         if is_attandance["success"]:
-#             return ResponseModel(success=False, message="Đã điểm danh hôm nay", data=is_attandance["data"])
-            
-#         await add_attendance({
-#             "student_id": face_encoding["matched_name"],
-#             "status": True,
-#             "create_at": datetime.utcnow()
-#         })
-        
-#         return ResponseModel(success=True, message="Điểm danh thành công", data=None)
 
 # Lấy danh sách điểm danh    
 @router.get("/get-all-attendances", response_model=ResponseModel)
@@ -143,7 +123,7 @@ async def get_all_attendances():
 async def attendance_stream_confirm(data: dict):
     return await stream_face_recognition(data["image"])
 
-@router.post("/attendance/confirm")
+@router.post("/attendance/confirm", response_model=ResponseModel)
 async def confirm_attendance(data: dict):
     student_id = data.get("student_id")
     confirmed = data.get("confirmed")
@@ -151,10 +131,27 @@ async def confirm_attendance(data: dict):
     if not student_id or confirmed not in [True, False]:
         return {"success": False, "message": "Thiếu thông tin xác nhận"}
 
-    if confirmed:
-        # Cập nhật trạng thái điểm danh vào DB ở đây
-        print(f"✅ Xác nhận điểm danh cho sinh viên {student_id}")
-        return {"success": True, "message": f"Đã xác nhận điểm danh cho {student_id}"}
-    else:
-        print(f"❌ Huỷ điểm danh cho sinh viên {student_id}")
-        return {"success": True, "message": f"Đã huỷ điểm danh cho {student_id}"}
+    return await confirm_student_attendance(student_id, confirmed)
+
+# @router.post("/scan-face-and-match", response_model=ResponseModel)
+# async def scan_face_and_match(file: UploadFile = File(...)):
+#     if not file:
+#         raise HTTPException(status_code=400, detail="No file uploaded")
+    
+#     face_encoding = await handle_face_upload(mtcnn, resnet, device, file, known_students)
+
+#     if face_encoding["success"] == False:
+#         return ResponseModel(success=False, message=face_encoding["message"], data=None)
+    
+#     if face_encoding["success"]:
+#         is_attandance = await get_attendance_by_id(face_encoding["matched_name"])
+#         if is_attandance["success"]:
+#             return ResponseModel(success=False, message="Đã điểm danh hôm nay", data=is_attandance["data"])
+            
+#         await add_attendance({
+#             "student_id": face_encoding["matched_name"],
+#             "status": True,
+#             "create_at": datetime.utcnow()
+#         })
+        
+#         return ResponseModel(success=True, message="Điểm danh thành công", data=None)
