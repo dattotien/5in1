@@ -3,11 +3,13 @@ from pydantic import Field
 from typing import Optional
 from datetime import datetime
 
-class Attendance(Document):
+class Message(Document):
     student_id: str
-    full_name: str
-    status: bool = True  
+    heading: str
+    message: str
+    handled: bool
     create_at: datetime = Field(default_factory=datetime.utcnow)
+    handled_at: Optional[datetime] = None
     
     class Config:
         json_schema_extra = {
@@ -18,8 +20,7 @@ class Attendance(Document):
         }
         
     class Settings:
-        name = "attendance"
+        name = "message"
         indexes = [
             "student_id",
-            "date"
         ]

@@ -37,90 +37,17 @@ class ResponseModel(BaseModel):
 async def scan_face_and_match(data: dict):
     return await add_attendance(data["image"])
 
-# Lấy danh sách điểm danh    
+# Lấy danh sách điểm danh       
 @router.get("/get-all-attendances", response_model=ResponseModel)
 async def get_all_attendances():
     return await get_attendances()
 
-# Stream mặt  
-# @router.websocket("/ws")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-
-#     input_queue = asyncio.Queue()
-#     output_queue = asyncio.Queue()
-#     match_queue = asyncio.Queue()
-
-#     # Bắt đầu xử lý ảnh
-#     asyncio.create_task(
-#         stream_face_recognition(input_queue, output_queue, match_queue, mtcnn, resnet, device, known_students)
-#     )
-
-#     global awaiting_confirmation, pending_student_id
-
-#     try:
-#         while True:
-#             # Tạo task để chờ 2 luồng: websocket nhận và nhận match
-#             receive_task = asyncio.create_task(websocket.receive_text())
-#             match_task = asyncio.create_task(match_queue.get())
-
-#             done, pending = await asyncio.wait(
-#                 [receive_task, match_task],
-#                 return_when=asyncio.FIRST_COMPLETED
-#             )
-
-#             for task in done:
-#                 result = task.result()
-
-#                 # Nếu là dữ liệu từ websocket
-#                 if task == receive_task:
-#                     json_data = json.loads(result)
-
-#                     if json_data.get("type") == "frame":
-#                         base64_str = json_data.get("frame", "")
-#                         if "," in base64_str:
-#                             base64_str = base64_str.split(",")[1]
-#                         img_data = base64.b64decode(base64_str)
-#                         np_arr = np.frombuffer(img_data, np.uint8)
-#                         img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-
-#                         await input_queue.put(img)
-#                         encoded_frame = await output_queue.get()
-
-#                         await websocket.send_json({
-#                             "type": "frame",
-#                             "frame": encoded_frame
-#                         })
-
-#                 # Nếu là kết quả matched từ handle_stream
-#                 elif task == match_task:
-#                     matched_name = result
-#                     print(matched_name)
-#                     if matched_name != "Unknown" and not awaiting_confirmation:
-#                         # student = "Cit"
-#                         student = await Student.find_one({"student_id": matched_name})
-#                         if student:
-#                             awaiting_confirmation = True
-#                             pending_student_id = student.student_id
-#                             await websocket.send_json({
-#                                 "type": "match",
-#                                 "student_id": matched_name,
-#                                 "full_name": student.full_name
-#                             })
-        
-#             # Hủy task chưa hoàn tất để tránh warning
-#             for task in pending:
-#                 task.cancel()
-#     except WebSocketDisconnect:
-#         print("Client disconnected")
-#         return
-#     except Exception as e:
-#         print(f"[WebSocket Error]: {e}")
-
+# Stream xác nhận điểm danh
 @router.post("/stream-confirm", response_model=ResponseModel)
 async def attendance_stream_confirm(data: dict):
     return await stream_face_recognition(data["image"])
 
+# Xác nhận điểm danh
 @router.post("/attendance/confirm", response_model=ResponseModel)
 async def confirm_attendance(request: Request):
     data = await request.json()
@@ -131,6 +58,11 @@ async def confirm_attendance(request: Request):
         return {"success": False, "message": "Thiếu thông tin xác nhận"}
 
     return await confirm_student_attendance(student_id, confirmed)
+
+# Lấy điểm danh theo id
+@router.post("/attendance/{student_id}", response_model=ResponseModel)
+async def get_attendance_by_id(student_id: str):
+    return await get_attendance_by_id(student_id)
 
 """
 @router.post("/attendance/confirm", response_model=ResponseModel)

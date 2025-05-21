@@ -38,3 +38,4 @@ async def upload_student_image(student_id: str, file: UploadFile = File(...)):
 @router.post("/add-student", response_model=ResponseModel)
 async def add_student(student_data: StudentCreateModel):
     return await add_student_to_database(student_data.dict())
+

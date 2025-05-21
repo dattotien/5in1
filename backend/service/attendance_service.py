@@ -9,13 +9,13 @@ from backend.service.face_service import (
 async def attendance_to_dict(attendance: Attendance):
     return {
         "student_id": attendance.student_id,
+        "full_name": attendance.full_name,
         "status": attendance.status,
         "create_at": attendance.create_at
     }
 
 async def get_attendance_by_id(student_id: str):
     try:
-        # Lấy bản ghi attendance mới nhất của student_id
         attendance = await Attendance.find({"student_id": student_id}).sort("-create_at").first_or_none()
 
         if attendance:
@@ -44,6 +44,7 @@ async def add_attendance(image: str):
         
         attendance = Attendance(
             student_id=notification["data"]["student_id"],
+            full_name=notification["data"]["full_name"],
             status=True,
             create_at=time_obj
         )
@@ -61,7 +62,7 @@ async def add_attendance(image: str):
         
     return {
         "success": False,
-        "message": "Điểm danh không thành công",
+        "message": notification["message"],
         "data": None
     }
 
