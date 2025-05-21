@@ -21,6 +21,9 @@ const StreamAttendance: React.FC = () => {
   const [resultMessage, setResultMessage] = useState("");
   const [resultColor, setResultColor] = useState("black");
   const [pauseCapture, setPauseCapture] = useState(false);
+  const lastCaptureTimeRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
+
 
   useEffect(() => {
     async function setupWebcam() {
@@ -96,17 +99,26 @@ const StreamAttendance: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    useEffect(() => {
+  function loop(time: number) {
     if (!pauseCapture) {
-      intervalRef.current = setInterval(() => {
+      if (time - lastCaptureTimeRef.current > 1500) {
         captureAndSend();
-      }, 2000);
+        lastCaptureTimeRef.current = time;
+      }
+      animationFrameRef.current = requestAnimationFrame(loop);
     }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [pauseCapture]);
+  }
+
+  animationFrameRef.current = requestAnimationFrame(loop);
+
+  return () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+  };
+}, [pauseCapture]);
+
 
   const handleConfirm = async (confirmed: boolean) => {
     if (!recognitionData?.student_id) return;

@@ -187,7 +187,7 @@ async def stream_face_recognition(image: str, mtcnn=mtcnn, resnet=resnet, device
     if is_matched["success"]:
         return {
             "success": True,
-            "message": f"Phát hiện sinh viên: {match_data['full_name']} ({match_data['student_id']}). Có đúng là bạn vừa điểm danh không?",
+            "message": f"Phát hiện sinh viên: {match_data['full_name']} ({match_data['student_id']})",
             "data": {
                 "student_id": match_data["student_id"],
                 "full_name": match_data["full_name"],

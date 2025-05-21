@@ -37,8 +37,6 @@ class ResponseModel(BaseModel):
 async def scan_face_and_match(data: dict):
     return await add_attendance(data["image"])
 
-
-
 # Lấy danh sách điểm danh    
 @router.get("/get-all-attendances", response_model=ResponseModel)
 async def get_all_attendances():
@@ -122,7 +120,6 @@ async def get_all_attendances():
 @router.post("/stream-confirm", response_model=ResponseModel)
 async def attendance_stream_confirm(data: dict):
     return await stream_face_recognition(data["image"])
-
 
 @router.post("/attendance/confirm", response_model=ResponseModel)
 async def confirm_attendance(request: Request):
