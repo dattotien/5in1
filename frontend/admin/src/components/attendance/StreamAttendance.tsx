@@ -1,6 +1,4 @@
-// StreamAttendance.tsx
-import React, { useEffect, useState } from "react";
-import WebcamCapture from "./WebcamCapture";
+import React, { useEffect, useRef, useState } from "react";
 import RecognitionResult from "./RecognitionResult";
 
 interface RecognitionData {
@@ -13,36 +11,56 @@ interface RecognitionData {
 }
 
 const StreamAttendance: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [recognitionData, setRecognitionData] = useState<RecognitionData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
   const [resultColor, setResultColor] = useState("black");
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
-  // Hàm gửi ảnh webcam lên backend
-  const fetchRecognition = async () => {
-    if (isProcessing || !canvasRef.current) return;
-    
+  // Khởi tạo webcam 1 lần
+  useEffect(() => {
+    async function setupWebcam() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+      } catch (error) {
+        setResultMessage("Không mở được webcam: " + (error as Error).message);
+        setResultColor("red");
+      }
+    }
+    setupWebcam();
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  // Hàm chụp ảnh và gửi backend
+  const captureAndSend = async () => {
+    if (isProcessing || !canvasRef.current || !videoRef.current) return;
+
     setIsProcessing(true);
     setResultMessage("Đang xử lý...");
     setResultColor("black");
 
     try {
-      const video = document.createElement('video');
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      video.srcObject = stream;
-      await video.play();
-
-      const ctx = canvasRef.current.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvasRef.current.getContext("2d");
+      if (!ctx) throw new Error("Không lấy được context canvas");
 
       canvasRef.current.width = 640;
       canvasRef.current.height = 480;
-      ctx.drawImage(video, 0, 0, canvasRef.current.width, canvasRef.current.height);
-      const dataUrl = canvasRef.current.toDataURL("image/jpeg");
 
-      video.pause();
-      stream.getTracks().forEach(track => track.stop());
+      ctx.drawImage(videoRef.current, 0, 0, 640, 480);
+      const dataUrl = canvasRef.current.toDataURL("image/jpeg");
 
       const response = await fetch("http://127.0.0.1:8000/api/attendance/stream-confirm", {
         method: "POST",
@@ -54,7 +72,7 @@ const StreamAttendance: React.FC = () => {
 
       const data = await response.json();
       setRecognitionData(data.data || null);
-      
+
       if (data.message) {
         setResultMessage(data.message);
         setResultColor(data.success ? "green" : "red");
@@ -67,7 +85,16 @@ const StreamAttendance: React.FC = () => {
     }
   };
 
-  // Xử lý xác nhận điểm danh
+  // Gọi captureAndSend mỗi 3 giây
+  useEffect(() => {
+    const interval = setInterval(() => {
+      captureAndSend();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Xử lý xác nhận điểm danh (giữ nguyên logic)
   const handleConfirm = async (confirmed: boolean) => {
     if (!recognitionData?.student_id) return;
 
@@ -100,50 +127,66 @@ const StreamAttendance: React.FC = () => {
     }
   };
 
-  // Gọi nhận diện mỗi 3 giây
-  useEffect(() => {
-    fetchRecognition();
-    const interval = setInterval(fetchRecognition, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div style={{ 
-      display: "flex", 
-      gap: "20px", 
-      maxWidth: "1000px", 
+    <div style={{
+      display: "flex",
+      gap: "20px",
+      maxWidth: "1000px",
       margin: "0 auto",
       padding: "20px"
     }}>
-      {/* Bên trái: WebcamCapture */}
+      {/* Webcam ẩn */}
+      <video ref={videoRef} style={{ display: "none" }} />
+      <canvas ref={canvasRef} style={{ display: "none" }} />
+
+      {/* Ảnh nhận diện backend trả về */}
       <div style={{ flex: 1 }}>
-        <WebcamCapture frameSrc={recognitionData?.frame} />
+        {recognitionData?.frame ? (
+          <img
+            src={recognitionData.frame}
+            alt="Nhận diện"
+            style={{ width: "100%", borderRadius: 8 }}
+          />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: 360,
+              border: "1px solid #ddd",
+              borderRadius: 8,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "#888",
+            }}
+          >
+            Vui lòng chờ nhận diện
+          </div>
+        )}
       </div>
 
-      {/* Bên phải: RecognitionResult và thông báo */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
-        {/* Thông báo kết quả */}
-        <div style={{ 
-          padding: "12px", 
-          border: "1px solid #ddd", 
-          borderRadius: "8px",
+      {/* Kết quả nhận diện và xác nhận */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{
+          padding: 12,
+          border: "1px solid #ddd",
+          borderRadius: 8,
           backgroundColor: "#fafafa",
           color: resultColor,
-          fontWeight: 600
+          fontWeight: 600,
+          minHeight: 72,
+          display: "flex",
+          alignItems: "center",
         }}>
           {resultMessage || "Chờ nhận diện..."}
         </div>
 
-        {/* Kết quả nhận diện */}
-        <RecognitionResult 
-          data={recognitionData} 
-          onConfirm={handleConfirm} 
+        <RecognitionResult
+          data={recognitionData}
+          onConfirm={handleConfirm}
           isConfirming={isProcessing}
         />
       </div>
-
-      {/* Canvas ẩn để chụp ảnh */}
-      <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>
   );
 };
