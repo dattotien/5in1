@@ -128,6 +128,7 @@ async def update_request_in_database(request_data: dict):
     if request:
         request.handled = True
         request.handled_at = datetime.utcnow()
+        request.response = request_data["response"]
         await request.save()
 
         return {
