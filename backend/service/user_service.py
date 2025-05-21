@@ -27,10 +27,8 @@ async def get_user_by_username(username: str):
         "data": None
     }
 
-async def authenticate_user(password: str, password_hash: str):
-    user_password_hash = hash_password(password)
-    
-    if user_password_hash == password_hash:
+async def authenticate_user(password: str, password_hash: str):    
+    if password == password_hash:
         return {
             "success": True,
             "message": "Đăng nhập thành công",
