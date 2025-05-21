@@ -13,10 +13,6 @@ import { Link, Outlet } from "react-router-dom";
 import { Avatar, Card } from "antd";
 const { Header, Content, Footer, Sider } = Layout;
 import { Route, Routes, useNavigate } from "react-router-dom";
-import Attendance from "../components/Content/Attendance";
-import StudentManagement from "../components/Content/StudentManagement";
-import Settings from "../components/Content/Settings";
-import FeedbackPage from "./FeedbackPage";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
