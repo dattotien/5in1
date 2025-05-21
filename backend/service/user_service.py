@@ -46,13 +46,24 @@ async def authenticate_user(password: str, password_hash: str):
 async def login_user(user_data: dict):
     user = await get_user_by_username(user_data["username"])
     
-    if user:
+    if user["success"] == True:
         auth_result = await authenticate_user(user_data["password"], user["data"]["password_hash"])
         
         if auth_result["success"]:
-            return auth_result
+            return {
+                "success": True,
+                "message": "Đăng nhập thành công",
+                "data": {
+                    "username": user_data["username"],
+                    "role": user["data"]["role"]
+                }
+            }
             
-        return  auth_result
+        return {
+            "success": False,
+            "message": "Mật khẩu không chính xác",
+            "data": None
+        }
         
     return {
         "success": False,
