@@ -16,7 +16,6 @@ async def attendance_to_dict(attendance: Attendance):
 
 async def get_attendance_by_id(student_id: str):
     try:
-        # Lấy bản ghi attendance mới nhất của student_id
         attendance = await Attendance.find({"student_id": student_id}).sort("-create_at").first_or_none()
 
         if attendance:
@@ -63,7 +62,7 @@ async def add_attendance(image: str):
         
     return {
         "success": False,
-        "message": "Điểm danh không thành công",
+        "message": notification["message"],
         "data": None
     }
 
