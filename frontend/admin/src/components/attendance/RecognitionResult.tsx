@@ -1,76 +1,76 @@
-// RecognitionResult.tsx
 import React from "react";
 
-interface RecognitionResultProps {
-  data?: {
-    student_id?: string;
-    full_name?: string;
-    need_confirm?: boolean;
-  };
+interface RecognitionData {
+  student_id?: string;
+  full_name?: string;
+  frame?: string;
+  need_confirm?: boolean;
+  message?: string;
+  success?: boolean;
+}
+
+interface Props {
+  data: RecognitionData | null;
   onConfirm: (confirmed: boolean) => void;
   isConfirming: boolean;
 }
 
-const RecognitionResult: React.FC<RecognitionResultProps> = ({ 
-  data, 
-  onConfirm, 
-  isConfirming 
-}) => {
-  if (!data || !data.need_confirm) {
+const RecognitionResult: React.FC<Props> = ({ data, onConfirm, isConfirming }) => {
+  if (!data || !data.student_id) {
     return (
-      <div style={{ 
-        padding: "12px", 
-        border: "1px solid #ddd", 
-        borderRadius: "8px", 
-        backgroundColor: "#fafafa" 
-      }}>
-        <p>Chưa có sinh viên cần xác nhận</p>
+      <div style={{ fontStyle: "italic", color: "#888" }}>
+        Không có thông tin sinh viên nhận diện
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      padding: "12px", 
-      border: "1px solid #ddd", 
-      borderRadius: "8px", 
-      backgroundColor: "#fafafa" 
-    }}>
-      <h3 style={{ marginBottom: "12px", fontSize: "1.2rem" }}>Kết quả nhận diện</h3>
-      <p><strong>Họ và tên:</strong> {data.full_name || "Không rõ"}</p>
-      <p><strong>MSV:</strong> {data.student_id || "Không rõ"}</p>
+    <div
+      style={{
+        border: "1px solid #ccc",
+        padding: 16,
+        borderRadius: 8,
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      <h3>Thông tin sinh viên</h3>
+      <p><strong>Họ tên:</strong> {data.full_name}</p>
+      <p><strong>Mã sinh viên:</strong> {data.student_id}</p>
 
-      <div style={{ marginTop: "16px", display: "flex", gap: "8px" }}>
-        <button
-          onClick={() => onConfirm(true)}
-          style={{ 
-            padding: "6px 12px",
-            backgroundColor: "#4caf50",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            opacity: isConfirming ? 0.7 : 1
-          }}
-        >
-          Xác nhận
-        </button>
-        <button
-          disabled={isConfirming}
-          onClick={() => onConfirm(false)}
-          style={{ 
-            padding: "6px 12px",
-            backgroundColor: "#f44336",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            opacity: isConfirming ? 0.7 : 1
-          }}
-        >
-          Hủy
-        </button>
-      </div>
+      {data.need_confirm && (
+        <div style={{ marginTop: 12 }}>
+          <p>Bạn có muốn xác nhận điểm danh?</p>
+          <button
+            onClick={() => onConfirm(true)}
+            disabled={isConfirming}
+            style={{
+              marginRight: 10,
+              padding: "6px 12px",
+              backgroundColor: "#4caf50",
+              color: "#fff",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+          >
+            Xác nhận
+          </button>
+          <button
+            onClick={() => onConfirm(false)}
+            disabled={isConfirming}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#f44336",
+              color: "#fff",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+          >
+            Hủy
+          </button>
+        </div>
+      )}
     </div>
   );
 };
