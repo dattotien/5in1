@@ -11,7 +11,8 @@ import {
   Input,
   Upload,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { Space, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import "./StudentTable.css";
@@ -39,10 +40,111 @@ const StudentTable: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen1, setModalOpen1] = useState(false);
+  const [searchText, setSearchText] = useState<string>("");
+  const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [form] = Form.useForm();
+  const [form1] = Form.useForm();
   const handleAddStudent = () => {
     setModalOpen(true);
     form.resetFields();
+  };
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    if (!value) {
+      setFilteredStudents(students);
+      return;
+    }
+    const lowerValue = value.toLowerCase();
+    setFilteredStudents(
+      students.filter(
+        (s) =>
+          s.student_id.toLowerCase().includes(lowerValue) ||
+          s.full_name.toLowerCase().includes(lowerValue)
+      )
+    );
+  };
+  const handleModalOk1 = () => {
+    form1.validateFields().then(async (values) => {
+      let image_base64 = undefined;
+      const fileObj = values.image?.[0]?.originFileObj;
+
+      if (fileObj) {
+        // Nếu chọn ảnh mới
+        image_base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(fileObj);
+        });
+      }
+      // Nếu không chọn ảnh mới, KHÔNG gửi image_base64 (backend sẽ giữ ảnh cũ)
+
+      const studentData: any = {
+        student_id: values.student_id,
+        name: values.ten,
+        full_name: `${values.ho} ${values.dem} ${values.ten}`,
+      };
+      if (image_base64) studentData.image_base64 = image_base64;
+
+      try {
+        const res = await axios.put(
+          `http://127.0.0.1:8000/api/admin/update-student/${values.student_id}`,
+          studentData
+        );
+        message.success(res.data.message);
+        fetchStudents();
+        setModalOpen1(false);
+      } catch (error) {
+        console.error(error);
+        message.error("Không thể chỉnh sửa sinh viên.");
+      }
+    });
+  };
+  const handleDeleteStudent = async (record: Student) => {
+    try {
+      const res = await axios.delete(
+        `http://127.0.0.1:8000/api/admin/delete-student/${record.student_id}`
+      );
+      message.success(res.data.message);
+      fetchStudents();
+    } catch (error) {
+      console.error(error);
+      message.error("Không thể xóa sinh viên.");
+    }
+  };
+  const handleChangeClick = (record: Student) => {
+    setModalOpen1(true);
+
+    const [ho = "", dem = "", ten = ""] = record.full_name
+      ? record.full_name.split(" ").length > 2
+        ? [
+            record.full_name.split(" ")[0],
+            record.full_name.split(" ").slice(1, -1).join(" "),
+            record.full_name.split(" ").slice(-1)[0],
+          ]
+        : record.full_name.split(" ")
+      : ["", "", ""];
+
+    // Chuẩn bị ảnh cho Upload (nếu có)
+    const imageFileList = record.image
+      ? [
+          {
+            uid: "-1",
+            name: "avatar.png",
+            status: "done",
+            url: record.image,
+          },
+        ]
+      : [];
+
+    form1.setFieldsValue({
+      student_id: record.student_id,
+      ho,
+      dem,
+      ten,
+      image: imageFileList,
+    });
   };
 
   // Đưa fetchStudents ra ngoài để có thể gọi ở nhiều nơi
@@ -68,6 +170,9 @@ const StudentTable: React.FC = () => {
   useEffect(() => {
     fetchStudents();
   }, []);
+  useEffect(() => {
+    setFilteredStudents(students);
+  }, [students]);
   const handleModalOk = () => {
     form.validateFields().then(async (values) => {
       const file = values.image?.[0]?.originFileObj;
@@ -145,9 +250,28 @@ const StudentTable: React.FC = () => {
       render: (createdAt: string) => new Date(createdAt).toLocaleString(),
     },
     {
-      title: "Action",
+      title: "Hành động",
       key: "action",
-      render: (_, record) => <a>Chỉnh sửa</a>,
+      render: (_, record) => (
+        <Space>
+          <Button onClick={() => handleChangeClick(record)}>Chỉnh sửa</Button>
+          <Popconfirm
+            cancelText="Hủy"
+            okText="Xác nhận"
+            onConfirm={() => handleDeleteStudent(record)}
+            title="Xóa sinh viên"
+            description={
+              <>
+                <p>Bạn có chắc muốn xóa sinh viên này?</p>
+                <p>Thông tin khi đã xóa không thể khôi phục.</p>
+              </>
+            }
+            icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+          >
+            <Button danger>Xóa sinh viên</Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
@@ -156,16 +280,79 @@ const StudentTable: React.FC = () => {
       <div style={{ padding: 24 }}>
         <div className="student-table-header">
           <h1>Danh sách sinh viên</h1>
-          <Button onClick={handleAddStudent}>Thêm sinh viên</Button>
+          <div>
+            <Input.Search
+              placeholder="Tìm kiếm theo mã SV hoặc họ tên"
+              allowClear
+              onSearch={handleSearch}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ width: 300, marginRight: 16 }}
+              value={searchText}
+            />
+            <Button onClick={handleAddStudent}>Thêm sinh viên</Button>
+          </div>
         </div>
 
         <Table
           columns={columns}
-          dataSource={students}
+          dataSource={filteredStudents}
           rowKey="student_id"
           loading={loading}
           bordered
         />
+        <Modal
+          title="Chỉnh sửa sinh viên"
+          open={modalOpen1}
+          onOk={handleModalOk1}
+          onCancel={() => setModalOpen1(false)}
+        >
+          <Form form={form1} layout="vertical">
+            <Form.Item
+              label="Mã sinh viên"
+              name="student_id"
+              rules={[{ required: true, message: "Vui nhập má sinh viên" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Họ"
+              name="ho"
+              rules={[{ required: true, message: "Vui nhập họ" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Tên đệm"
+              name="dem"
+              rules={[{ required: true, message: "Vui nhập tên đệm" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Tên"
+              name="ten"
+              rules={[{ required: true, message: "Vui nhập tên" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Ảnh sinh viên"
+              name="image"
+              valuePropName="fileList"
+              getValueFromEvent={(e) =>
+                Array.isArray(e) ? e : e && e.fileList
+              }
+            >
+              <Upload
+                listType="picture"
+                maxCount={1}
+                beforeUpload={() => false} // Ngăn upload tự động, chỉ lấy file trong form
+              >
+                <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+              </Upload>
+            </Form.Item>
+          </Form>
+        </Modal>
         <Modal
           title="Thêm sinh viên"
           open={modalOpen}
