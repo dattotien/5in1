@@ -6,6 +6,7 @@ from backend.entities.student import Student
 from backend.entities.attendance import Attendance
 from backend.config.database import Database
 from backend.entities.user import User
+from backend.entities.message import Message
 
 app = FastAPI(title="Student Management API")
 app.add_middleware(
@@ -32,7 +33,8 @@ async def startup_event():
         document_models=[
             Student,
             Attendance,
-            User
+            User,
+            Message
         ]
     )
 
