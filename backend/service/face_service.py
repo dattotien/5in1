@@ -106,21 +106,65 @@ async def stream_face_recognition(image: str, mtcnn=mtcnn, resnet=resnet, device
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     boxes, _ = mtcnn.detect(img_rgb)
 
-    if boxes is None or len(boxes) == 0:
-        return {"success": False, "message": "Video không chứa khuôn mặt nào", "data": None}
-    
+    # Vẽ bounding box cho tất cả mặt nếu có
+    if boxes is not None:
+        for box in boxes:
+            box = box.astype(int)
+            cv2.rectangle(img, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+    else:
+        boxes = []
+
+    # Nếu không có mặt, trả ảnh gốc kèm thông báo
+    if len(boxes) == 0:
+        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        buffered = BytesIO()
+        pil_img.save(buffered, format="JPEG")
+        frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+        return {
+            "success": False,
+            "message": "Không phát hiện khuôn mặt nào",
+            "data": {
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
+            }
+        }
+
+    # Nếu nhiều mặt, trả ảnh vẽ box nhiều mặt kèm thông báo
     if len(boxes) > 1:
-        return {"success": False, "message": "Có nhiều hơn một khuôn mặt trong video", "data": None}
-    
+        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        buffered = BytesIO()
+        pil_img.save(buffered, format="JPEG")
+        frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+        return {
+            "success": False,
+            "message": f"Phát hiện {len(boxes)} khuôn mặt trong video",
+            "data": {
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
+            }
+        }
+
+    # 1 mặt, xử lý nhận dạng
     faces = mtcnn(img_rgb)
     if faces is None or len(faces) == 0:
-        return {"success": False, "message": "Không nhận diện được khuôn mặt", "data": None}
-        
+        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        buffered = BytesIO()
+        pil_img.save(buffered, format="JPEG")
+        frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+        return {
+            "success": False,
+            "message": "Không nhận diện được khuôn mặt",
+            "data": {
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
+            }
+        }
+    
     image_encoding = resnet(faces[0].unsqueeze(0).to(device)).detach().cpu().numpy().flatten()
     
-    box = boxes[0].astype(int)
-    cv2.rectangle(img, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
-
     # Mặc định là không match
     is_matched = {"success": False}
     match_data = None
@@ -131,12 +175,11 @@ async def stream_face_recognition(image: str, mtcnn=mtcnn, resnet=resnet, device
         if is_matched["success"]:
             match_data = is_matched["data"]
             id = match_data["student_id"]
+            box = boxes[0].astype(int)
             cv2.putText(img, id, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
                         (0, 255, 0), 2, cv2.LINE_AA)
 
-    # Encode ảnh
-    img_rgb_drawn = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    pil_img = Image.fromarray(img_rgb_drawn)
+    pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     buffered = BytesIO()
     pil_img.save(buffered, format="JPEG")
     frame_with_box_base64 = base64.b64encode(buffered.getvalue()).decode()
@@ -158,9 +201,11 @@ async def stream_face_recognition(image: str, mtcnn=mtcnn, resnet=resnet, device
             "success": False,
             "message": "Không tìm thấy sinh viên trùng khớp với khuôn mặt",
             "data": {
-                "frame": "data:image/jpeg;base64," + frame_with_box_base64
+                "frame": "data:image/jpeg;base64," + frame_with_box_base64,
+                "need_confirm": False,
             }
         }
+
 
     
 # Xử lý stream
