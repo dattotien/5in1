@@ -69,13 +69,19 @@ async def add_student_to_database(student_data: dict):
             "data": None
         }
     
-    image_encoding = await get_image_encoding(student_data["image"])
+    # Lấy đúng key ảnh base64 từ frontend
+    image_base64 = student_data.get("image_base64", "")
+    image_encoding = await get_image_encoding(image_base64)
+    # Đảm bảo image_encoding là list
+    if not isinstance(image_encoding, list):
+        image_encoding = image_encoding.tolist() if hasattr(image_encoding, "tolist") else []
+
     student = Student(
         student_id=student_data["student_id"],
         name=student_data["name"],
         full_name=student_data["full_name"],
-        image=student_data["image"],
-        image_encoding = image_encoding,
+        image=image_base64,
+        image_encoding=image_encoding,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -134,28 +140,34 @@ async def update_student(student_id: str, student_data: dict):
 
     student_obj = existing["data"]
 
+    # Lấy ảnh mới nếu có, nếu không giữ nguyên ảnh cũ
+    image_base64 = student_data.get("image_base64", student_obj["image"])
+
+    # Nếu có ảnh mới, cập nhật image_encoding
+    if "image_base64" in student_data and student_data["image_base64"]:
+        image_encoding = await get_image_encoding(student_data["image_base64"])
+        if not isinstance(image_encoding, list):
+            image_encoding = image_encoding.tolist() if hasattr(image_encoding, "tolist") else []
+    else:
+        image_encoding = student_obj.get("image_encoding", [])
+
     update_data = {
         "student_id": student_data.get("student_id", student_obj["student_id"]),
         "name": student_data.get("name", student_obj["name"]),
         "full_name": student_data.get("full_name", student_obj["full_name"]),
-        "image_encoding": student_data.get("image_encoding", student_obj["image_encoding"]),
-        "image": student_data.get("image", student_obj["image"]),
-        "created_at": student_obj["created_at"],  
+        "image_encoding": image_encoding,
+        "image": image_base64,
+        "created_at": student_obj["created_at"],
         "updated_at": datetime.utcnow()
     }
 
-    # Chỉ cập nhật face_encoding nếu có image mới
-    # if "image" in student_data:
-    #     update_data["face_encoding"] = await handle_face_upload(student_data["image"])
+    await Student.find_one({"student_id": student_id}).update({"$set": update_data})
 
-    await Student.find_one({"student_id": student_id}).update({"$set": update_data})   
-    
     return {
         "success": True,
         "message": "Cập nhật sinh viên thành công",
         "data": update_data
     }
-
 # Xóa sinh viên
 async def delete_student(student_id: str):
     existing = await get_student_by_id(student_id)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Body, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, UploadFile, File, HTTPException, Body, WebSocket, WebSocketDisconnect, Request
 from typing import List, Optional
 from datetime import date
 from pydantic import BaseModel
@@ -36,8 +36,6 @@ class ResponseModel(BaseModel):
 @router.post("/scan-face-and-match", response_model=ResponseModel)
 async def scan_face_and_match(data: dict):
     return await add_attendance(data["image"])
-
-
 
 # Lấy danh sách điểm danh    
 @router.get("/get-all-attendances", response_model=ResponseModel)
@@ -124,7 +122,8 @@ async def attendance_stream_confirm(data: dict):
     return await stream_face_recognition(data["image"])
 
 @router.post("/attendance/confirm", response_model=ResponseModel)
-async def confirm_attendance(data: dict):
+async def confirm_attendance(request: Request):
+    data = await request.json()
     student_id = data.get("student_id")
     confirmed = data.get("confirmed")
 
@@ -132,6 +131,19 @@ async def confirm_attendance(data: dict):
         return {"success": False, "message": "Thiếu thông tin xác nhận"}
 
     return await confirm_student_attendance(student_id, confirmed)
+
+"""
+@router.post("/attendance/confirm", response_model=ResponseModel)
+async def confirm_attendance(data: dict):
+    student_id = data.get("student_id")
+    confirmed = data.get("confirmed")
+    print(student_id)
+
+    if not student_id or confirmed not in [True, False]:
+        return {"success": False, "message": "Thiếu thông tin xác nhận"}
+
+    return await confirm_student_attendance(student_id, confirmed)
+"""
 
 # @router.post("/scan-face-and-match", response_model=ResponseModel)
 # async def scan_face_and_match(file: UploadFile = File(...)):

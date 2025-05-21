@@ -1,30 +1,77 @@
 import './AttendanceList.css';
+import React, { useEffect, useState } from "react";
+
+interface AttendanceItem {
+  student_id: string;
+  full_name: string;
+  status: boolean;
+  time: string;
+}
+
+interface ResponseModel {
+  success: boolean;
+  message: string;
+  data: {
+    [studentId: string]: {
+      student_id: string;
+      full_name: string;
+      status: boolean;
+      create_at: string;
+    }[];
+  };
+}
 
 export default function AttendanceList() {
-  // Temporary dummy data
-  const dummyData = [
-    { id: 1, name: 'Nguyen Van A', status: 'Present', time: '2023-05-01 08:00' },
-    { id: 2, name: 'Tran Thi B', status: 'Absent', time: '2023-05-01 08:00' },
-  ];
+  const [attendances, setAttendances] = useState<AttendanceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/attendance/get-all-attendances")
+      .then(res => res.json())
+      .then((data: ResponseModel) => {
+        if (data.success) {
+          const flatList: AttendanceItem[] = [];
+          Object.values(data.data).forEach((records) => {
+            records.forEach(record => {
+              flatList.push({
+                student_id: record.student_id,
+                full_name: record.full_name,
+                status: record.status,
+                time: record.create_at
+              });
+            });
+          });
+          setAttendances(flatList);
+        } else {
+          setError(data.message);
+        }
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div>Đang tải dữ liệu...</div>;
+  if (error) return <div>Lỗi: {error}</div>;
 
   return (
     <div className="attendance-list">
       <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
+            <th>Student ID</th>
+            <th>Full Name</th>
             <th>Status</th>
             <th>Time</th>
           </tr>
         </thead>
         <tbody>
-          {dummyData.map((item) => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.name}</td>
-              <td>{item.status}</td>
-              <td>{item.time}</td>
+          {attendances.map((item, index) => (
+            <tr key={index}>
+              <td>{item.student_id}</td>
+              <td>{item.full_name}</td>
+              <td>{item.status ? "Có mặt" : "Vắng"}</td>
+              <td>{new Date(item.time).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>
