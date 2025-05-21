@@ -5,6 +5,7 @@ from backend.api import auth, admin, student, attendance
 from backend.entities.student import Student
 from backend.entities.attendance import Attendance
 from backend.config.database import Database
+from backend.entities.user import User
 
 app = FastAPI(title="Student Management API")
 app.add_middleware(
@@ -16,7 +17,8 @@ app.add_middleware(
 )
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(attendance.router, prefix="/api/attendance", tags=["Attendance"])
-
+app.include_router(attendance.router, prefix="/api/student", tags=["Student"])
+app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 
 @app.on_event("startup")
 async def startup_event():
@@ -29,7 +31,8 @@ async def startup_event():
         database=client.Attendances,
         document_models=[
             Student,
-            Attendance
+            Attendance,
+            User
         ]
     )
 

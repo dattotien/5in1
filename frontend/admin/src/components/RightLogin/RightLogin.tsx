@@ -1,10 +1,12 @@
 import { Input, Button, Form, message } from "antd";
-import { Card, Checkbox } from "antd";
+import React, { useState } from "react";
+import { Card, Checkbox, Alert } from "antd";
 import "./RightLogin.css";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 
 function RightLogin() {
+  const [loginError, setLoginError] = useState(false);
   const navigate = useNavigate();
   interface LoginFormValues {
     username: string;
@@ -12,18 +14,29 @@ function RightLogin() {
     remember?: boolean;
   }
 
-  const onFinish = (values: LoginFormValues) => {
-    const { username, password } = values;
-    if (username === "301-G2" && password === "123456") {
-      navigate("/user");
-      // Chuyển hướng hoặc lưu thông tin đăng nhập tại đây
-    } else if (username === "23020353" && password === "123456") {
-      navigate("/admin");
-    } else {
-      message.error("Tên đăng nhập hoặc mật khẩu không đúng!");
+  const onFinish = async (values: LoginFormValues) => {
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/auth/login",
+        values
+      );
+      message.success(res.data.message);
+      console.log(res.data);
+      if (res.data.success) {
+        setLoginError(false);
+        if (res.data.data.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/user");
+        }
+      } else {
+        setLoginError(true);
+      }
+    } catch (error) {
+      setLoginError(true);
+      console.error(error);
     }
   };
-
   interface OnFinishFailedInfo {
     errorFields: Array<{
       name: (string | number)[];
@@ -67,7 +80,14 @@ function RightLogin() {
           >
             <Input.Password className="login-input2" />
           </Form.Item>
-
+          {loginError && (
+            <Alert
+              message="Tài khoản hoặc mật khẩu sai"
+              type="error"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <Form.Item name="remember" valuePropName="checked" label={null}>
             <Checkbox className="login-checkbox">Nhớ mật khẩu</Checkbox>
           </Form.Item>
