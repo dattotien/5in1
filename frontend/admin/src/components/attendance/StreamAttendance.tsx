@@ -112,7 +112,7 @@ const StreamAttendance: React.FC = () => {
     if (!recognitionData?.student_id) return;
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/attendance/confirm", {
+      const response = await fetch("http://127.0.0.1:8000/api/attendance/attendance/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
