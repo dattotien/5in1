@@ -10,6 +10,7 @@ class Message(Document):
     handled: bool
     create_at: datetime = Field(default_factory=datetime.utcnow)
     handled_at: Optional[datetime] = None
+    response: Optional[str] = None
     
     class Config:
         json_schema_extra = {

@@ -80,7 +80,8 @@ async def add_request_to_database(user_data: dict):
         message=user_data["message"],
         create_at=datetime.utcnow(),
         handled=False,
-        handled_at=None
+        handled_at=None,
+        response=None
     )
     await message.insert()
 
@@ -101,7 +102,8 @@ async def get_requests_from_database():
                 "message": request.message,
                 "create_at": request.create_at,
                 "handled": request.handled,
-                "handled_at": request.handled_at
+                "handled_at": request.handled_at,
+                "response": request.response
             }
         
         return {
@@ -151,7 +153,8 @@ async def get_requests_by_student_id(student_id: str):
                 "message": request.message,
                 "create_at": request.create_at,
                 "handled": request.handled,
-                "handled_at": request.handled_at
+                "handled_at": request.handled_at,
+                "response": request.response
             }
         
         return {
