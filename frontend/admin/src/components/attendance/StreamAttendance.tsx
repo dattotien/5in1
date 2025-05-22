@@ -16,7 +16,6 @@ const StreamAttendance: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // Thay đổi NodeJS.Timeout thành number | null
   const intervalRef = useRef<number | null>(null);
 
   const [recognitionData, setRecognitionData] = useState<RecognitionData | null>(null);
