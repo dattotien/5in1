@@ -16,7 +16,8 @@ const StreamAttendance: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Thay đổi NodeJS.Timeout thành number | null
+  const intervalRef = useRef<number | null>(null);
 
   const [recognitionData, setRecognitionData] = useState<RecognitionData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,7 +47,7 @@ const StreamAttendance: React.FC = () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
-      if (intervalRef.current) {
+      if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
       }
     };
@@ -114,7 +115,7 @@ const StreamAttendance: React.FC = () => {
     animationFrameRef.current = requestAnimationFrame(loop);
 
     return () => {
-      if (animationFrameRef.current) {
+      if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
