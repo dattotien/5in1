@@ -2,8 +2,8 @@ import './ScheduleTable.css';
 
 export default function ScheduleTable() {
   const scheduleData = [
-    { id: 1, subjectName: 'Toán', classCode: 'MTH101', time: '8:00-10:00' },
-    { id: 2, subjectName: 'Vật Lý', classCode: 'PHY202', time: '13:00-15:00' },
+    { id: 1, subjectName: 'Mathematics', classCode: 'MTH101', time: '8:00-10:00' },
+    { id: 2, subjectName: 'Physics', classCode: 'PHY202', time: '13:00-15:00' },
   ];
 
   return (
@@ -11,10 +11,10 @@ export default function ScheduleTable() {
       <table>
         <thead>
           <tr>
-            <th>STT</th>
-            <th>Tên môn học</th>
-            <th>Mã lớp học phần</th>
-            <th>Thời gian</th>
+            <th>No.</th>
+            <th>Subject Name</th>
+            <th>Class Code</th>
+            <th>Time</th>
           </tr>
         </thead>
         <tbody>
