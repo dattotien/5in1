@@ -46,6 +46,10 @@ export default function UserLayout() {
       <main className="user-main-content">
         <Outlet />
       </main>
+
+      <footer className="user-footer">
+        &copy; {new Date().getFullYear()} 5in1. All rights reserved.
+      </footer>
     </div>
   );
 }
