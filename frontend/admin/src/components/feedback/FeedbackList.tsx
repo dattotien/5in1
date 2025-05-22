@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "./FeedbackList.css";
 
 interface FeedbackItem {
@@ -8,10 +9,10 @@ interface FeedbackItem {
 }
 
 const FeedbackList: React.FC = () => {
+  const { t } = useTranslation();
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
 
   useEffect(() => {
-    // Dữ liệu giả (mock)
     const mockData: FeedbackItem[] = [
       {
         title: "Improve classroom facilities",
@@ -38,9 +39,9 @@ const FeedbackList: React.FC = () => {
       <table>
         <thead>
           <tr>
-            <th>No.</th>
-            <th>Title</th>
-            <th>Status</th>
+            <th>{t("feedbackList.no")}</th>
+            <th>{t("feedbackList.title")}</th>
+            <th>{t("feedbackList.status")}</th>
           </tr>
         </thead>
         <tbody>
@@ -50,7 +51,7 @@ const FeedbackList: React.FC = () => {
               <td>{fb.title}</td>
               <td>
                 <span className={`status ${fb.status.toLowerCase()}`}>
-                  {fb.status}
+                  {t(`feedbackList.statuses.${fb.status.toLowerCase()}`) || fb.status}
                 </span>
               </td>
             </tr>

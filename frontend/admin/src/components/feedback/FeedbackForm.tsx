@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import './FeedbackForm.css';
 
 const FeedbackForm: React.FC = () => {
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -18,37 +20,37 @@ const FeedbackForm: React.FC = () => {
     if (res.ok) {
       setTitle("");
       setContent("");
-      alert("Gửi thành công!");
+      alert(t("feedbackForm.successMessage"));
     } else {
-      alert("Gửi thất bại!");
+      alert(t("feedbackForm.failureMessage"));
     }
   };
 
   return (
     <form className="feedback-form" onSubmit={handleSubmit}>
       <label>
-        Tiêu đề <span className="required">*</span>
+        {t("feedbackForm.titleLabel")} <span className="required">{t("feedbackForm.requiredMark")}</span>
       </label>
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Nhập tiêu đề..."
+        placeholder={t("feedbackForm.titlePlaceholder")}
         required
       />
 
       <label>
-        Nội dung <span className="required">*</span>
+        {t("feedbackForm.contentLabel")} <span className="required">{t("feedbackForm.requiredMark")}</span>
       </label>
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="Nhập nội dung góp ý..."
+        placeholder={t("feedbackForm.contentPlaceholder")}
         rows={6}
         required
       />
 
-      <button type="submit">Gửi</button>
+      <button type="submit">{t("feedbackForm.submitButton")}</button>
     </form>
   );
 };
