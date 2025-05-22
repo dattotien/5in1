@@ -18,7 +18,7 @@ const AttendanceTabs: React.FC = () => {
         type="line"
         size="middle"
       >
-        <TabPane tab="Stream" key="stream">
+        <TabPane tab="Live" key="stream">
           <StreamAttendance />
         </TabPane>
 
@@ -26,7 +26,7 @@ const AttendanceTabs: React.FC = () => {
           <ImageUpload />
         </TabPane>
 
-        <TabPane tab="Class List" key="classList">
+        <TabPane tab="Overview" key="classList">
           <AttendanceList />
         </TabPane>
       </Tabs>
