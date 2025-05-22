@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import RecognitionResult from "./RecognitionResult";
+import { useTranslation } from "react-i18next";
 
 interface RecognitionData {
   student_id?: string;
@@ -11,16 +12,20 @@ interface RecognitionData {
 }
 
 const StreamAttendance: React.FC = () => {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [recognitionData, setRecognitionData] = useState<RecognitionData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
   const [resultColor, setResultColor] = useState("black");
+  const [pauseCapture, setPauseCapture] = useState(false);
+  const lastCaptureTimeRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
 
-  // Khởi tạo webcam 1 lần
   useEffect(() => {
     async function setupWebcam() {
       try {
@@ -31,7 +36,7 @@ const StreamAttendance: React.FC = () => {
           await videoRef.current.play();
         }
       } catch (error) {
-        setResultMessage("Không mở được webcam: " + (error as Error).message);
+        setResultMessage(t("stream.webcam_error", { error: (error as Error).message }));
         setResultColor("red");
       }
     }
@@ -41,20 +46,30 @@ const StreamAttendance: React.FC = () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
-  }, []);
+  }, [t]);
 
-  // Hàm chụp ảnh và gửi backend
+  useEffect(() => {
+    if (recognitionData?.need_confirm) {
+      setPauseCapture(true);
+    } else {
+      setPauseCapture(false);
+    }
+  }, [recognitionData?.need_confirm]);
+
   const captureAndSend = async () => {
-    if (isProcessing || !canvasRef.current || !videoRef.current) return;
+    if (isProcessing || !canvasRef.current || !videoRef.current || pauseCapture) return;
 
     setIsProcessing(true);
-    setResultMessage("Đang xử lý...");
+    setResultMessage(t("stream.processing"));
     setResultColor("black");
 
     try {
       const ctx = canvasRef.current.getContext("2d");
-      if (!ctx) throw new Error("Không lấy được context canvas");
+      if (!ctx) throw new Error(t("stream.canvas_error"));
 
       canvasRef.current.width = 640;
       canvasRef.current.height = 480;
@@ -68,7 +83,7 @@ const StreamAttendance: React.FC = () => {
         body: JSON.stringify({ image: dataUrl }),
       });
 
-      if (!response.ok) throw new Error("Lỗi server: " + response.status);
+      if (!response.ok) throw new Error(t("stream.server_error", { code: response.status }));
 
       const data = await response.json();
       setRecognitionData(data.data || null);
@@ -78,28 +93,38 @@ const StreamAttendance: React.FC = () => {
         setResultColor(data.success ? "green" : "red");
       }
     } catch (error) {
-      setResultMessage("Lỗi khi nhận diện: " + (error as Error).message);
+      setResultMessage(t("stream.recognition_error", { error: (error as Error).message }));
       setResultColor("red");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Gọi captureAndSend mỗi 3 giây
   useEffect(() => {
-    const interval = setInterval(() => {
-      captureAndSend();
-    }, 3000);
+    function loop(time: number) {
+      if (!pauseCapture) {
+        if (time - lastCaptureTimeRef.current > 1500) {
+          captureAndSend();
+          lastCaptureTimeRef.current = time;
+        }
+        animationFrameRef.current = requestAnimationFrame(loop);
+      }
+    }
 
-    return () => clearInterval(interval);
-  }, []);
+    animationFrameRef.current = requestAnimationFrame(loop);
 
-  // Xử lý xác nhận điểm danh (giữ nguyên logic)
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [pauseCapture]);
+
   const handleConfirm = async (confirmed: boolean) => {
     if (!recognitionData?.student_id) return;
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/attendance/confirm", {
+      const response = await fetch("http://127.0.0.1:8000/api/attendance/attendance/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -112,34 +137,30 @@ const StreamAttendance: React.FC = () => {
       if (data.success) {
         setResultMessage(
           confirmed
-            ? `Sinh viên ${recognitionData.full_name} - MSV: ${recognitionData.student_id} đã điểm danh thành công`
-            : "Hủy điểm danh"
+            ? t("stream.confirm_success", {
+                name: recognitionData.full_name,
+                id: recognitionData.student_id,
+              })
+            : t("stream.confirm_cancel")
         );
         setResultColor(confirmed ? "green" : "red");
         setRecognitionData(null);
+        setPauseCapture(false);
       } else {
-        setResultMessage(data.message || "Xác nhận thất bại");
+        setResultMessage(data.message || t("stream.confirm_failed"));
         setResultColor("red");
       }
     } catch (error) {
-      setResultMessage("Lỗi xác nhận: " + (error as Error).message);
+      setResultMessage(t("stream.confirm_error", { error: (error as Error).message }));
       setResultColor("red");
     }
   };
 
   return (
-    <div style={{
-      display: "flex",
-      gap: "20px",
-      maxWidth: "1000px",
-      margin: "0 auto",
-      padding: "20px"
-    }}>
-      {/* Webcam ẩn */}
+    <div style={{ display: "flex", gap: "20px", maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
       <video ref={videoRef} style={{ display: "none" }} />
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      {/* Ảnh nhận diện backend trả về */}
       <div style={{ flex: 1 }}>
         {recognitionData?.frame ? (
           <img
@@ -160,25 +181,26 @@ const StreamAttendance: React.FC = () => {
               color: "#888",
             }}
           >
-            Vui lòng chờ nhận diện
+            {t("stream.waiting_recognition")}
           </div>
         )}
       </div>
 
-      {/* Kết quả nhận diện và xác nhận */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
-        <div style={{
-          padding: 12,
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          backgroundColor: "#fafafa",
-          color: resultColor,
-          fontWeight: 600,
-          minHeight: 72,
-          display: "flex",
-          alignItems: "center",
-        }}>
-          {resultMessage || "Chờ nhận diện..."}
+        <div
+          style={{
+            padding: 12,
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            backgroundColor: "#fafafa",
+            color: resultColor,
+            fontWeight: 600,
+            minHeight: 72,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {resultMessage || t("stream.waiting_text")}
         </div>
 
         <RecognitionResult
