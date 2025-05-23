@@ -1,144 +1,110 @@
-import React, { useState } from "react";
-import { Table, Button, Modal, List } from "antd";
-import type { TableColumnsType } from "antd";
+import React, { useState, useEffect } from "react";
+import { Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import axios from "axios";
 
-interface SubjectData {
-  key: React.Key;
-  subjectName: string;
-  classCode: string;
-  schedule: string;
-  classroom: string;
-}
-
-interface Student {
+interface Attendace {
+  key: string;
+  student_id: string;
   name: string;
-  studentId: string;
+  create_at: string;
 }
 
-// Giả lập danh sách sinh viên của từng môn
-const studentDataMap: Record<string, Student[]> = {
-  INT2210_1: [
-    { name: "Nguyễn Văn A", studentId: "SV001" },
-    { name: "Trần Thị B", studentId: "SV002" },
-  ],
-  INT2204_1: [
-    { name: "Lê Văn C", studentId: "SV003" },
-    { name: "Phạm Thị D", studentId: "SV004" },
-  ],
-  INT2211_1: [
-    { name: "Hoàng Văn E", studentId: "SV005" },
-    { name: "Đặng Thị F", studentId: "SV006" },
-  ],
-};
-
-const data: SubjectData[] = [
+const columns: ColumnsType<Attendace> = [
   {
-    key: 1,
-    subjectName: "Cấu trúc dữ liệu và giải thuật",
-    classCode: "INT2210_1",
-    schedule: "Thứ 2, 7:30 - 9:30",
-    classroom: "301-G2",
+    title: "STT",
+    dataIndex: "key",
+    key: "key",
   },
   {
-    key: 2,
-    subjectName: "Lập trình hướng đối tượng",
-    classCode: "INT2204_1",
-    schedule: "Thứ 4, 9:45 - 11:45",
-    classroom: "103-G2",
+    title: "Mã sinh viên",
+    dataIndex: "student_id",
+    key: "student_id",
   },
   {
-    key: 3,
-    subjectName: "Cơ sở dữ liệu",
-    classCode: "INT2211_1",
-    schedule: "Thứ 6, 13:00 - 15:00",
-    classroom: "101-G2",
+    title: "Tên sinh viên",
+    dataIndex: "name",
+    key: "name",
+  },
+  {
+    title: "Thời gian điểm danh",
+    dataIndex: "create_at",
+    key: "create_at",
   },
 ];
 
-const App: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
-  const [selectedClass, setSelectedClass] = useState<string>("");
+function ClassTable() {
+  const [Attendance, setAttendance] = useState<Attendace[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleEdit = (record: SubjectData) => {
-    const students = studentDataMap[record.classCode] || [];
-    setSelectedStudents(students);
-    setSelectedClass(record.classCode);
-    setOpen(true);
-  };
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(
+          "http://127.0.0.1:8000/api/attendance/get-all-attendances"
+        );
+        const rawData = res.data.data;
+        let flatData: Omit<Attendace, "name">[] = [];
+        let idx = 1;
+        Object.values(rawData).forEach((arr: any) => {
+          arr.forEach((item: any) => {
+            flatData.push({
+              key: idx.toString(),
+              student_id: item.student_id,
+              create_at: item.create_at,
+            });
+            idx++;
+          });
+        });
+        const studentIds = Array.from(
+          new Set(flatData.map((item) => item.student_id))
+        );
 
-  const columns: TableColumnsType<SubjectData> = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      render: (_text, _record, index) => index + 1,
-    },
-    {
-      title: "Tên môn học",
-      dataIndex: "subjectName",
-    },
-    {
-      title: "Mã lớp học phần",
-      dataIndex: "classCode",
-    },
-    {
-      title: "Lịch học",
-      dataIndex: "schedule",
-    },
-    {
-      title: "Giảng đường",
-      dataIndex: "classroom",
-    },
-    {
-      title: "Thao tác",
-      key: "action",
-      render: (_, record) => (
-        <Button type="link" onClick={() => handleEdit(record)}>
-          Chỉnh sửa
-        </Button>
-      ),
-    },
-  ];
+        const nameMap: Record<string, string> = {};
+        await Promise.all(
+          studentIds.map(async (id) => {
+            try {
+              const res = await axios.get(
+                `http://127.0.0.1:8000/api/admin/get-student/${id}`
+              );
+              nameMap[id] = res.data?.data?.full_name || "";
+            } catch {
+              nameMap[id] = "";
+            }
+          })
+        );
+        const dataWithName: Attendace[] = flatData.map((item) => ({
+          ...item,
+          name: nameMap[item.student_id] || "",
+          create_at: new Date(item.create_at).toLocaleString("vi-VN", {
+            hour12: false,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          }),
+        }));
+
+        setAttendance(dataWithName);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAttendance();
+  }, []);
 
   return (
-    <>
-      <Table<SubjectData>
-        columns={columns}
-        dataSource={data}
-        pagination={false}
-      />
-      <Modal
-        title={`Danh sách sinh viên - ${selectedClass}`}
-        open={open}
-        onCancel={() => setOpen(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setOpen(false)}>
-            Hủy
-          </Button>,
-          <Button
-            key="save"
-            type="primary"
-            onClick={() => {
-              // TODO: xử lý lưu dữ liệu tại đây
-              console.log("Đã lưu thay đổi cho lớp:", selectedClass);
-              setOpen(false);
-            }}
-          >
-            Lưu thay đổi
-          </Button>,
-        ]}
-      >
-        <List
-          dataSource={selectedStudents}
-          renderItem={(student) => (
-            <List.Item>
-              {student.name} ({student.studentId})
-            </List.Item>
-          )}
-        />
-      </Modal>
-    </>
+    <Table
+      columns={columns}
+      dataSource={Attendance}
+      loading={loading}
+      rowKey="key"
+    />
   );
-};
+}
 
-export default App;
+export default ClassTable;

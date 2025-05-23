@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface RecognitionData {
   student_id?: string;
@@ -16,10 +17,12 @@ interface Props {
 }
 
 const RecognitionResult: React.FC<Props> = ({ data, onConfirm, isConfirming }) => {
+  const { t } = useTranslation();
+
   if (!data || !data.student_id) {
     return (
       <div style={{ fontStyle: "italic", color: "#888" }}>
-        Không có thông tin sinh viên nhận diện
+        {t("recognition.no_data")}
       </div>
     );
   }
@@ -33,13 +36,13 @@ const RecognitionResult: React.FC<Props> = ({ data, onConfirm, isConfirming }) =
         backgroundColor: "#f5f5f5",
       }}
     >
-      <h3>Thông tin sinh viên</h3>
-      <p><strong>Họ tên:</strong> {data.full_name}</p>
-      <p><strong>Mã sinh viên:</strong> {data.student_id}</p>
+      <h3>{t("recognition.student_info")}</h3>
+      <p><strong>{t("recognition.full_name")}:</strong> {data.full_name}</p>
+      <p><strong>{t("recognition.student_id")}:</strong> {data.student_id}</p>
 
       {data.need_confirm && (
         <div style={{ marginTop: 12 }}>
-          <p>Bạn có muốn xác nhận điểm danh?</p>
+          <p>{t("recognition.confirm_question")}</p>
           <button
             onClick={() => onConfirm(true)}
             disabled={isConfirming}
@@ -53,7 +56,7 @@ const RecognitionResult: React.FC<Props> = ({ data, onConfirm, isConfirming }) =
               cursor: "pointer",
             }}
           >
-            Xác nhận
+            {t("recognition.confirm")}
           </button>
           <button
             onClick={() => onConfirm(false)}
@@ -67,7 +70,7 @@ const RecognitionResult: React.FC<Props> = ({ data, onConfirm, isConfirming }) =
               cursor: "pointer",
             }}
           >
-            Hủy
+            {t("recognition.cancel")}
           </button>
         </div>
       )}

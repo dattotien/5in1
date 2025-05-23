@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   CheckSquareOutlined,
-  SettingOutlined,
+  QuestionCircleOutlined,
   TeamOutlined,
   UserOutlined,
   LogoutOutlined,
@@ -13,10 +13,6 @@ import { Link, Outlet } from "react-router-dom";
 import { Avatar, Card } from "antd";
 const { Header, Content, Footer, Sider } = Layout;
 import { Route, Routes, useNavigate } from "react-router-dom";
-import Attendance from "../components/Content/Attendance";
-import StudentManagement from "../components/Content/StudentManagement";
-import Settings from "../components/Content/Settings";
-import FeedbackPage from "./FeedbackPage";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -50,9 +46,9 @@ const items: MenuItem[] = [
     "menu-item"
   ),
   getItem(
-    <Link to="settings">Cài đặt</Link>,
+    <Link to="settings">Xử lý phản hồi</Link>,
     "settings",
-    <SettingOutlined />,
+    <QuestionCircleOutlined />,
     "menu-item"
   ),
 ];
@@ -90,7 +86,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="attendance" element={<p>Quản lý điểm danh</p>} />
             <Route path="students" element={<p>Quản lý sinh viên</p>} />
-            <Route path="settings" element={<p>Cài đặt</p>} />
+            <Route path="settings" element={<p>Xử lý phản hồi</p>} />
           </Routes>
         </Header>
         <Content>

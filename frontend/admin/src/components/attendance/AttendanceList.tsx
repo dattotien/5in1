@@ -1,5 +1,6 @@
 import './AttendanceList.css';
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface AttendanceItem {
   student_id: string;
@@ -22,6 +23,7 @@ interface ResponseModel {
 }
 
 export default function AttendanceList() {
+  const { t } = useTranslation();
   const [attendances, setAttendances] = useState<AttendanceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,18 +53,18 @@ export default function AttendanceList() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div>Đang tải dữ liệu...</div>;
-  if (error) return <div>Lỗi: {error}</div>;
+  if (loading) return <div>{t("attendanceList.loading")}</div>;
+  if (error) return <div>{t("attendanceList.error", { error })}</div>;
 
   return (
     <div className="attendance-list">
       <table>
         <thead>
           <tr>
-            <th>Student ID</th>
-            <th>Full Name</th>
-            <th>Status</th>
-            <th>Time</th>
+            <th>{t("attendanceList.studentId")}</th>
+            <th>{t("attendanceList.fullName")}</th>
+            <th>{t("attendanceList.status")}</th>
+            <th>{t("attendanceList.time")}</th>
           </tr>
         </thead>
         <tbody>
@@ -70,7 +72,7 @@ export default function AttendanceList() {
             <tr key={index}>
               <td>{item.student_id}</td>
               <td>{item.full_name}</td>
-              <td>{item.status ? "Có mặt" : "Vắng"}</td>
+              <td>{item.status ? t("attendanceList.present") : t("attendanceList.absent")}</td>
               <td>{new Date(item.time).toLocaleString()}</td>
             </tr>
           ))}

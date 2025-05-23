@@ -4,5 +4,105 @@
   "schedule": "Schedule",
   "feedback": "Feedback",
   "logout": "Logout",
-  "change_language": "Change language"
+  "change_language": "Change language",
+
+  "attendance_page": {
+    "title": "Attendance Management"
+  },
+  
+  "tabs": {
+    "live": "Live",
+    "upload": "Upload",
+    "overview": "Overview"
+  },
+
+  "stream": {
+    "webcam_error": "Unable to open webcam: {{error}}",
+    "canvas_error": "Cannot get canvas context",
+    "processing": "Processing...",
+    "server_error": "Server error: {{code}}",
+    "recognition_error": "Recognition error: {{error}}",
+    "confirm_success": "Student {{name}} - ID: {{id}} checked in successfully",
+    "confirm_cancel": "Check-in canceled",
+    "confirm_failed": "Confirmation failed",
+    "confirm_error": "Confirmation error: {{error}}",
+    "waiting_recognition": "Please wait for recognition",
+    "waiting_text": "Waiting for recognition..."
+  },
+
+  "recognition": {
+  "no_data": "No student data recognized",
+  "student_info": "Student Information",
+  "full_name": "Full Name",
+  "student_id": "Student ID",
+  "confirm_question": "Do you want to confirm attendance?",
+  "confirm": "Confirm",
+  "cancel": "Cancel"
+  },
+
+  "upload": {
+    "drop_here": "Drag & drop an image here or click to select one",
+    "only_support": "(Supports only JPG, PNG...)",
+    "remove_image": "Remove image",
+    "recognize": "Recognize",
+    "recognized": "Recognized",
+    "start_recognition": "Starting face recognition..."
+  },
+
+  "attendanceList": {
+    "loading": "Loading data...",
+    "error": "Error: {{error}}",
+    "studentId": "Student ID",
+    "fullName": "Full Name",
+    "status": "Status",
+    "time": "Time",
+    "present": "Present",
+    "absent": "Absent"
+  },
+  
+  "schedulePage": {
+    "title": "Class Schedule"
+  },
+
+
+  "scheduleTable": {
+    "no": "No.",
+    "subjectName": "Subject Name",
+    "classCode": "Class Code",
+    "time": "Time"
+  },
+
+  "feedbackPage": {
+    "title": "Feedback Hub",
+    "tabs": {
+      "form": "Submit Feedback",
+      "list": "Feedback History"
+    }
+  },
+
+  "feedbackForm": {
+    "titleLabel": "Title",
+    "contentLabel": "Content",
+    "titlePlaceholder": "Enter title...",
+    "contentPlaceholder": "Enter your feedback...",
+    "submitButton": "Submit",
+    "requiredMark": "*",
+    "successMessage": "Sent successfully!",
+    "failureMessage": "Sending failed!"
+  },
+
+  "feedbackList": {
+    "no": "No.",
+    "title": "Title",
+    "status": "Status",
+    "statuses": {
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "rejected": "Rejected"
+    }
+  }
+
 }
+
+
+
