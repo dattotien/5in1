@@ -1,10 +1,12 @@
 import { useState, useCallback } from "react";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 import RecognitionResult from "./RecognitionResult";
 import "./ImageUpload.css";
 
 export default function ImageUpload() {
+  const { t } = useTranslation();
   const [image, setImage] = useState<string | null>(null);
   const [recognized, setRecognized] = useState(false);
 
@@ -18,9 +20,7 @@ export default function ImageUpload() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      "image/*": [],
-    },
+    accept: { "image/*": [] },
     multiple: false,
   });
 
@@ -32,7 +32,7 @@ export default function ImageUpload() {
   const handleRecognize = () => {
     if (!image) return;
     setRecognized(true);
-    alert("Bắt đầu nhận diện khuôn mặt...");
+    alert(t("upload.start_recognition"));
   };
 
   return (
@@ -45,22 +45,22 @@ export default function ImageUpload() {
         >
           <input {...getInputProps()} />
           <UploadOutlined className="upload-icon" />
-          <p>Kéo & thả ảnh vào đây hoặc nhấn để chọn ảnh</p>
-          <small>(Chỉ hỗ trợ ảnh định dạng JPG, PNG...)</small>
+          <p>{t("upload.drop_here")}</p>
+          <small>{t("upload.only_support")}</small>
         </div>
       ) : (
         <div className="preview-container">
           <img src={image} alt="preview" className="preview-image" />
           <div style={{ display: "flex", gap: 12 }}>
-            <button onClick={handleRemove} className="remove-btn" aria-label="Xóa ảnh">
-              <DeleteOutlined /> Xóa ảnh
+            <button onClick={handleRemove} className="remove-btn" aria-label={t("upload.remove_image")}>
+              <DeleteOutlined /> {t("upload.remove_image")}
             </button>
             <button
               onClick={handleRecognize}
               className="recognize-btn"
               disabled={recognized}
             >
-              {recognized ? "Đã nhận diện" : "Nhận diện"}
+              {recognized ? t("upload.recognized") : t("upload.recognize")}
             </button>
           </div>
           {recognized && <RecognitionResult />}

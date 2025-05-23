@@ -4,5 +4,101 @@
   "schedule": "Lịch học",
   "feedback": "Phản hồi",
   "logout": "Đăng xuất",
-  "change_language": "Thay đổi ngôn ngữ"
+  "change_language": "Thay đổi ngôn ngữ",
+  
+  "attendance_page": {
+    "title": "Quản lý điểm danh"
+  },
+
+  "tabs": {
+    "live": "Điểm danh trực tiếp",
+    "upload": "Tải ảnh lên",
+    "overview": "Danh sách điểm danh"
+  },
+
+  "stream": {
+    "webcam_error": "Không mở được webcam: {{error}}",
+    "canvas_error": "Không lấy được context canvas",
+    "processing": "Đang xử lý...",
+    "server_error": "Lỗi server: {{code}}",
+    "recognition_error": "Lỗi khi nhận diện: {{error}}",
+    "confirm_success": "Sinh viên {{name}} - MSV: {{id}} đã điểm danh thành công",
+    "confirm_cancel": "Hủy điểm danh",
+    "confirm_failed": "Xác nhận thất bại",
+    "confirm_error": "Lỗi xác nhận: {{error}}",
+    "waiting_recognition": "Vui lòng chờ nhận diện",
+    "waiting_text": "Chờ nhận diện..."
+  },
+
+  "recognition": {
+    "no_data": "Không có thông tin sinh viên nhận diện",
+    "student_info": "Thông tin sinh viên",
+    "full_name": "Họ tên",
+    "student_id": "Mã sinh viên",
+    "confirm_question": "Bạn có muốn xác nhận điểm danh?",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy"
+  },
+
+  "upload": {
+    "drop_here": "Kéo & thả ảnh vào đây hoặc nhấn để chọn ảnh",
+    "only_support": "(Chỉ hỗ trợ ảnh định dạng JPG, PNG...)",
+    "remove_image": "Xóa ảnh",
+    "recognize": "Nhận diện",
+    "recognized": "Đã nhận diện",
+    "start_recognition": "Bắt đầu nhận diện khuôn mặt..."
+  },
+
+  "attendanceList": {
+    "loading": "Đang tải dữ liệu...",
+    "error": "Lỗi: {{error}}",
+    "studentId": "Mã sinh viên",
+    "fullName": "Họ tên",
+    "status": "Trạng thái",
+    "time": "Thời gian",
+    "present": "Có mặt",
+    "absent": "Vắng"
+  },
+
+  "schedulePage": {
+    "title": "Lịch học"
+  },
+
+  "scheduleTable": {
+    "no": "STT",
+    "subjectName": "Tên môn học",
+    "classCode": "Mã lớp học phần",
+    "time": "Thời gian"
+  },
+
+  "feedbackPage": {
+    "title": "Trung tâm phản hồi",
+    "tabs": {
+      "form": "Gửi phản hồi",
+      "list": "Lịch sử phản hồi"
+    }
+  },
+
+  "feedbackForm": {
+    "titleLabel": "Tiêu đề",
+    "contentLabel": "Nội dung",
+    "titlePlaceholder": "Nhập tiêu đề...",
+    "contentPlaceholder": "Nhập nội dung phản hồi...",
+    "submitButton": "Gửi",
+    "requiredMark": "*",
+    "successMessage": "Gửi thành công!",
+    "failureMessage": "Gửi thất bại!"
+  },
+
+  "feedbackList": {
+    "no": "STT",
+    "title": "Tiêu đề",
+    "status": "Trạng thái",
+    "statuses": {
+      "pending": "Đang chờ",
+      "resolved": "Đã giải quyết",
+      "rejected": "Bị từ chối"
+    }
+  }
+
 }

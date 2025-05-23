@@ -16,7 +16,22 @@ async def attendance_to_dict(attendance: Attendance):
 
 async def get_attendance_by_id(student_id: str):
     try:
-        attendance = await Attendance.find({"student_id": student_id}).sort("-create_at").first_or_none()
+        # Lấy thông tin sinh viên
+        student = await Student.find_one({"student_id": student_id})
+        if not student:
+            return {"success": False, "message": "Không tìm thấy sinh viên", "data": None}
+
+        # Lấy điểm danh trong ngày
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = today_start + timedelta(days=1)
+        
+        attendance = await Attendance.find({
+            "student_id": student_id,
+            "create_at": {
+                "$gte": today_start,
+                "$lt": today_end
+            }
+        }).sort("-create_at").first_or_none()
 
         if attendance:
             time_str = attendance.create_at.strftime("%H:%M:%S")
@@ -25,12 +40,17 @@ async def get_attendance_by_id(student_id: str):
                 "message": "Đã điểm danh",
                 "data": {
                     "student_id": student_id,
+                    "full_name": attendance.full_name,
                     "time": time_str,
                     "status": attendance.status
                 }
             }
         else:
-            return {"success": False, "message": "Chưa có điểm danh nào", "data": None}
+            return {
+                "success": False, 
+                "message": "Chưa có điểm danh nào trong ngày hôm nay", 
+                "data": None
+            }
     except Exception as e:
         return {"success": False, "message": f"Lỗi: {str(e)}", "data": None}
 

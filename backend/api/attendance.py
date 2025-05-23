@@ -60,8 +60,8 @@ async def confirm_attendance(request: Request):
     return await confirm_student_attendance(student_id, confirmed)
 
 # Lấy điểm danh theo id
-@router.post("/attendance/{student_id}", response_model=ResponseModel)
-async def get_attendance_by_id(student_id: str):
+@router.get("/attendance/{student_id}", response_model=ResponseModel)
+async def get_student_attendance(student_id: str):
     return await get_attendance_by_id(student_id)
 
 """
