@@ -21,7 +21,8 @@ const AttendanceTabs: React.FC = () => {
         size="middle"
       >
         <TabPane tab={t("tabs.live")} key="stream">
-          <StreamAttendance />
+          {/* Truyền prop active: true khi tab đang là stream */}
+          <StreamAttendance active={activeTab === "stream"} />
         </TabPane>
 
         <TabPane tab={t("tabs.upload")} key="upload">

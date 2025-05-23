@@ -72,7 +72,9 @@ export default function AttendanceList() {
             <tr key={index}>
               <td>{item.student_id}</td>
               <td>{item.full_name}</td>
-              <td>{item.status ? t("attendanceList.present") : t("attendanceList.absent")}</td>
+              <td className={item.status ? "status-present" : "status-absent"}>
+                {item.status ? t("attendanceList.present") : t("attendanceList.absent")}
+              </td>
               <td>{new Date(item.time).toLocaleString()}</td>
             </tr>
           ))}

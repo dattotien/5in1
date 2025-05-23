@@ -50,3 +50,16 @@
 .feedback-form button:hover {
   background-color: #16427a;
 }
+
+.form-message {
+  font-weight: 500;
+}
+
+.form-message.success {
+  color: #065f46;
+}
+
+.form-message.error {
+  color: #991b1b;
+}
+

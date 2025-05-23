@@ -11,12 +11,15 @@ interface RecognitionData {
   success?: boolean;
 }
 
-const StreamAttendance: React.FC = () => {
+interface StreamAttendanceProps {
+  active: boolean; // prop mới để bật/tắt webcam
+}
+
+const StreamAttendance: React.FC<StreamAttendanceProps> = ({ active }) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const intervalRef = useRef<number | null>(null);
 
   const [recognitionData, setRecognitionData] = useState<RecognitionData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -26,32 +29,44 @@ const StreamAttendance: React.FC = () => {
   const lastCaptureTimeRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    async function setupWebcam() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-        }
-      } catch (error) {
-        setResultMessage(t("stream.webcam_error", { error: (error as Error).message }));
-        setResultColor("red");
+  // Hàm bật webcam
+  async function setupWebcam() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
       }
+      setResultMessage("");
+      setResultColor("black");
+    } catch (error) {
+      setResultMessage(t("stream.webcam_error", { error: (error as Error).message }));
+      setResultColor("red");
     }
-    setupWebcam();
+  }
 
-    return () => {
+  // useEffect bật/tắt webcam khi prop active thay đổi
+  useEffect(() => {
+    if (active) {
+      setupWebcam();
+    } else {
+      // Tắt webcam
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
       }
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
       }
-    };
-  }, [t]);
+      // Reset trạng thái
+      setRecognitionData(null);
+      setResultMessage("");
+      setPauseCapture(false);
+    }
+  }, [active, t]);
 
+  // Dừng capture khi cần xác nhận
   useEffect(() => {
     if (recognitionData?.need_confirm) {
       setPauseCapture(true);
@@ -102,7 +117,7 @@ const StreamAttendance: React.FC = () => {
 
   useEffect(() => {
     function loop(time: number) {
-      if (!pauseCapture) {
+      if (!pauseCapture && active) {
         if (time - lastCaptureTimeRef.current > 1500) {
           captureAndSend();
           lastCaptureTimeRef.current = time;
@@ -111,14 +126,16 @@ const StreamAttendance: React.FC = () => {
       }
     }
 
-    animationFrameRef.current = requestAnimationFrame(loop);
+    if (active) {
+      animationFrameRef.current = requestAnimationFrame(loop);
+    }
 
     return () => {
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [pauseCapture]);
+  }, [pauseCapture, active]);
 
   const handleConfirm = async (confirmed: boolean) => {
     if (!recognitionData?.student_id) return;
@@ -163,11 +180,7 @@ const StreamAttendance: React.FC = () => {
 
       <div style={{ flex: 1 }}>
         {recognitionData?.frame ? (
-          <img
-            src={recognitionData.frame}
-            alt="Nhận diện"
-            style={{ width: "100%", borderRadius: 8 }}
-          />
+          <img src={recognitionData.frame} alt="Nhận diện" style={{ width: "100%", borderRadius: 8 }} />
         ) : (
           <div
             style={{
@@ -203,11 +216,7 @@ const StreamAttendance: React.FC = () => {
           {resultMessage || t("stream.waiting_text")}
         </div>
 
-        <RecognitionResult
-          data={recognitionData}
-          onConfirm={handleConfirm}
-          isConfirming={isProcessing}
-        />
+        <RecognitionResult data={recognitionData} onConfirm={handleConfirm} isConfirming={isProcessing} />
       </div>
     </div>
   );
