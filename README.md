@@ -52,55 +52,88 @@ Dự án này là một hệ thống điểm danh sử dụng nhận diện khu�
 #### 4. Database Layer:
 - **MongoDB**:
   - Collections:
-    - users: Thông tin người dùng
+    - students: Thông tin sinh viên và face embeddings
     - attendance: Lịch sử điểm danh
-    - face_data: Face embeddings (được mã hóa)
-    - classes: Thông tin lớp học
+    - message: Lưu trữ thông báo hệ thống
+    - users: Quản lý người dùng hệ thống
   - Indexes tối ưu cho truy vấn
   - Automatic backups
 
 ### Quy trình Hoạt động:
 
-1. **Đăng ký Khuôn Mặt**:
-   ```
-   Camera Input -> MTCNN Detection -> Face Alignment -> 
-   InceptionResNet-V1 -> Face Embedding -> MongoDB Storage
-   ```
+**Quá trình Điểm Danh**:
+```
+Camera Stream (1.5s/frame) -> 
+MTCNN Face Detection (kiểm tra 1 khuôn mặt) -> 
+Face Alignment & Preprocessing -> 
+InceptionResNet-V1 Feature Extraction (512-d) -> 
+Face Matching với Dataset (threshold 0.8) -> 
+Attendance Recording -> Real-time Update
+```
 
-2. **Quá trình Điểm Danh**:
-   ```
-   Camera Stream -> Face Detection -> Feature Extraction -> 
-   Face Matching -> Attendance Recording -> Real-time Update
-   ```
+### Cấu trúc Dữ liệu:
+
+#### 1. Dataset Khuôn Mặt:
+- Face embeddings được tính toán trước và lưu trong MongoDB
+- Mỗi sinh viên có một face embedding vector (512-d)
+- Ngưỡng similarity (threshold) = 0.8 cho việc match khuôn mặt
+
+#### 2. Database Collections (MongoDB):
+- **students**: Thông tin sinh viên và face embeddings
+- **attendance**: Lịch sử điểm danh
+- **message**: Lưu trữ thông báo hệ thống
+- **users**: Quản lý người dùng hệ thống
+
+### Xử lý Dữ liệu:
+
+1. **Preprocessing**:
+   - Phát hiện khuôn mặt trong khung hình
+   - Căn chỉnh và chuẩn hóa kích thước
+   - Tối ưu hóa chất lượng ảnh
+
+2. **Face Recognition**:
+   - Trích xuất đặc trưng khuôn mặt (512-d embeddings)
+   - So sánh với dataset có sẵn
+   - Xác định danh tính dựa trên độ tương đồng
+
+3. **Attendance Processing**:
+   - Ghi nhận thời gian điểm danh
+   - Cập nhật trạng thái real-time
+   - Thống kê và báo cáo
 
 ### Bảo mật và An toàn:
 
-1. **Mã hóa Dữ liệu**:
-   - Face embeddings được mã hóa trước khi lưu trữ
-   - Sử dụng HTTPS cho mọi kết nối
-   - JWT với refresh token rotation
+1. **Authentication & Authorization**:
+   - Sử dụng JWT (JSON Web Tokens) cho xác thực API
+   - Token hết hạn sau 1 giờ để tăng tính bảo mật
+   - Phân quyền rõ ràng: Admin và User thường
 
-2. **Validation và Sanitization**:
-   - Input validation cho mọi API endpoint
-   - Sanitization cho dữ liệu người dùng
-   - Rate limiting cho API calls
+2. **Bảo vệ API**:
+   - Sử dụng CORS policy cho phép chỉ frontend và admin dashboard được truy cập
+   - Rate limiting: Giới hạn số request từ một IP
+   - Validate tất cả input từ client
 
-3. **Access Control**:
-   - Role-based access control (RBAC)
-   - IP-based access restrictions
-   - Session management
+3. **Bảo mật Database**:
+   - MongoDB được cấu hình với authentication required
+   - Kết nối database qua internal Docker network
+   - Backup dữ liệu tự động hàng ngày
 
 ### Khả năng Mở rộng:
 
-1. **Horizontal Scaling**:
-   - Stateless backend services
-   - Load balancing với Nginx
-   - MongoDB replication support
+1. **Container Orchestration**:
+   - Sử dụng Docker Compose để quản lý các services
+   - Các services có thể được khởi động độc lập
+   - Tự động restart khi gặp lỗi
 
-2. **Monitoring & Logging**:
-   - Detailed API logs
-   - Performance metrics
-   - Error tracking và alerting
+2. **Caching và Performance**:
+   - Nginx làm reverse proxy và load balancer
+   - Cấu hình Nginx cho static file caching
+   - MongoDB indexes cho các truy vấn thường xuyên
+
+3. **Monitoring**:
+   - Log files được lưu trữ và quản lý bởi Docker
+   - Theo dõi status của các services qua Docker health checks
+   - Kiểm tra tài nguyên hệ thống thông qua Docker stats
 
 ### Công nghệ sử dụng:
 - **Frontend**: 
