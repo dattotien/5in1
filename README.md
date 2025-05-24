@@ -7,7 +7,6 @@ Hệ thống điểm danh tự động sử dụng AI nhận diện khuôn mặt
 - [Kiến trúc hệ thống](#kiến-trúc-hệ-thống)
 - [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
 - [Cài đặt và Chạy](#cài-đặt-và-chạy)
-- [API Documentation](#api-documentation)
 - [Xử lý Lỗi](#xử-lý-lỗi)
 - [Backup & Restore](#backup--restore)
 
@@ -107,17 +106,6 @@ docker-compose up -d
    - Username: datto
    - Password: 23020353
 
-## 📝 API Documentation
-
-### Authentication
-- POST /api/auth/login
-- POST /api/auth/logout
-
-### Attendance
-- POST /api/attendance/check
-- GET /api/attendance/history
-- GET /api/attendance/stats
-
 ## 🛠 Xử lý Lỗi
 
 ### Kiểm tra logs
@@ -153,13 +141,12 @@ docker exec attendance_mongodb mongorestore --db Attendances /backup/Attendances
 ```
 
 ## 👥 Contributing
-1. Fork repository
-2. Tạo feature branch
-3. Commit changes
-4. Push to branch
-5. Create Pull Request
+- Chu Thị Phương Anh: Backend
+- Đặng Minh Nguyệt: Model Developer
+- Tô Tiến Đạt: Admin Frontend
+- Nguyễn Thị Minh Ly: User Frontend
+- Phạm Hà Anh: Database + Docker
 
-## 📄 License
-MIT License - see LICENSE file for details
+
 
 
