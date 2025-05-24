@@ -1,4 +1,4 @@
-import './AttendanceList.css';
+import "./AttendanceList.css";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -7,6 +7,9 @@ interface AttendanceItem {
   full_name: string;
   status: boolean;
   time: string;
+}
+interface AttendanceListProps {
+  activeTab: string;
 }
 
 interface ResponseModel {
@@ -22,25 +25,27 @@ interface ResponseModel {
   };
 }
 
-export default function AttendanceList() {
+export default function AttendanceList({ activeTab }: AttendanceListProps) {
   const { t } = useTranslation();
   const [attendances, setAttendances] = useState<AttendanceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     fetch("http://127.0.0.1:8000/api/attendance/get-all-attendances")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then((data: ResponseModel) => {
         if (data.success) {
           const flatList: AttendanceItem[] = [];
           Object.values(data.data).forEach((records) => {
-            records.forEach(record => {
+            records.forEach((record) => {
               flatList.push({
                 student_id: record.student_id,
                 full_name: record.full_name,
                 status: record.status,
-                time: record.create_at
+                time: record.create_at,
               });
             });
           });
@@ -49,9 +54,9 @@ export default function AttendanceList() {
           setError(data.message);
         }
       })
-      .catch(err => setError(err.message))
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeTab]);
 
   if (loading) return <div>{t("attendanceList.loading")}</div>;
   if (error) return <div>{t("attendanceList.error", { error })}</div>;
@@ -73,7 +78,9 @@ export default function AttendanceList() {
               <td>{item.student_id}</td>
               <td>{item.full_name}</td>
               <td className={item.status ? "status-present" : "status-absent"}>
-                {item.status ? t("attendanceList.present") : t("attendanceList.absent")}
+                {item.status
+                  ? t("attendanceList.present")
+                  : t("attendanceList.absent")}
               </td>
               <td>{new Date(item.time).toLocaleString()}</td>
             </tr>

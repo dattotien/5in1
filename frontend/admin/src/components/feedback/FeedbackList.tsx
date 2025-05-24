@@ -11,13 +11,18 @@ interface FeedbackItem {
   handledAt?: string | null;
   response?: string | null;
 }
+interface FeedbackListProps {
+  activeTab: string;
+}
 
-const FeedbackList: React.FC = () => {
+const FeedbackList: React.FC<FeedbackListProps> = ({ activeTab }) => {
   const { t } = useTranslation();
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"title" | "status" | "createdAt" | "">( "");
+  const [sortBy, setSortBy] = useState<"title" | "status" | "createdAt" | "">(
+    ""
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -31,7 +36,9 @@ const FeedbackList: React.FC = () => {
       }
 
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/user/get_requests/${studentId}`);
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/user/get_requests/${studentId}`
+        );
         if (!res.ok) throw new Error("Failed to fetch");
 
         const json = await res.json();
@@ -65,15 +72,16 @@ const FeedbackList: React.FC = () => {
     }
 
     fetchFeedbacks();
-  }, [studentId]);
+  }, [studentId, activeTab]);
 
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
-  const filtered = feedbacks.filter((fb) =>
-    fb.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    fb.content.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = feedbacks.filter(
+    (fb) =>
+      fb.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fb.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const sorted = [...filtered].sort((a, b) => {
@@ -82,7 +90,10 @@ const FeedbackList: React.FC = () => {
     } else if (sortBy === "status") {
       return Number(a.handled) - Number(b.handled);
     } else if (sortBy === "createdAt") {
-      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      return (
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime()
+      );
     }
     return 0;
   });
@@ -111,7 +122,9 @@ const FeedbackList: React.FC = () => {
           value={sortBy}
         >
           <option value="">{t("feedbackListPage.sort.label")}</option>
-          <option value="createdAt">{t("feedbackListPage.sort.createdAt")}</option>
+          <option value="createdAt">
+            {t("feedbackListPage.sort.createdAt")}
+          </option>
           <option value="title">{t("feedbackListPage.sort.title")}</option>
           <option value="status">{t("feedbackListPage.sort.status")}</option>
         </select>
@@ -140,8 +153,12 @@ const FeedbackList: React.FC = () => {
                   <td>{globalIdx + 1}</td>
                   <td>{fb.student_id}</td>
                   <td>{fb.title}</td>
-                  <td className={`status ${fb.handled ? "resolved" : "pending"}`}>
-                    {fb.handled ? t("feedbackListPage.table.statusResolved") : t("feedbackListPage.table.statusPending")}
+                  <td
+                    className={`status ${fb.handled ? "resolved" : "pending"}`}
+                  >
+                    {fb.handled
+                      ? t("feedbackListPage.table.statusResolved")
+                      : t("feedbackListPage.table.statusPending")}
                   </td>
                   <td>
                     <span
@@ -159,12 +176,26 @@ const FeedbackList: React.FC = () => {
                 {expandedIndex === globalIdx && (
                   <tr>
                     <td colSpan={5} className="detail-row">
-                      <strong>{t("feedbackListPage.detail.content")}:</strong> {fb.content} <br />
-                      <strong>{t("feedbackListPage.detail.createdAt")}:</strong>{" "}
-                      {fb.createdAt ? new Date(fb.createdAt).toLocaleString() : t("feedbackListPage.detail.notAvailable")} <br />
-                      <strong>{t("feedbackListPage.detail.handledAt")}:</strong>{" "}
-                      {fb.handledAt ? new Date(fb.handledAt).toLocaleString() : t("feedbackListPage.detail.notAvailable")} <br />
-                      <strong>{t("feedbackListPage.detail.response")}:</strong> {fb.response || t("feedbackListPage.detail.noResponse")}
+                      <strong>{t("feedbackListPage.detail.content")}:</strong>{" "}
+                      {fb.content} <br />
+                      <strong>
+                        {t("feedbackListPage.detail.createdAt")}:
+                      </strong>{" "}
+                      {fb.createdAt
+                        ? new Date(fb.createdAt).toLocaleString()
+                        : t("feedbackListPage.detail.notAvailable")}{" "}
+                      <br />
+                      <strong>
+                        {t("feedbackListPage.detail.handledAt")}:
+                      </strong>{" "}
+                      {fb.handledAt
+                        ? new Date(fb.handledAt).toLocaleString()
+                        : t("feedbackListPage.detail.notAvailable")}{" "}
+                      <br />
+                      <strong>
+                        {t("feedbackListPage.detail.response")}:
+                      </strong>{" "}
+                      {fb.response || t("feedbackListPage.detail.noResponse")}
                     </td>
                   </tr>
                 )}
@@ -174,7 +205,14 @@ const FeedbackList: React.FC = () => {
         </tbody>
       </table>
 
-      <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "10px" }}>
+      <div
+        style={{
+          marginTop: "20px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+        }}
+      >
         {Array.from({ length: totalPages }, (_, i) => (
           <button
             key={i}
