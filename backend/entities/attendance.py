@@ -21,5 +21,6 @@ class Attendance(Document):
         name = "attendance"
         indexes = [
             "student_id",
-            "date"
+            "create_at",
+            [("student_id", 1), ("create_at", -1)]  # Composite index for efficient queries
         ]
