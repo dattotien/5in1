@@ -56,7 +56,8 @@ async def login_user(user_data: dict):
                 "data": {
                     "username": user_data["username"],
                     "role": user["data"]["role"],
-                    "student_id": user["data"]["student_id"]
+                    "student_id": user["data"]["student_id"],
+                    "full_name": user["data"]["full_name"]  # Thêm dòng này
                 }
             }
             
@@ -94,11 +95,11 @@ async def add_request_to_database(user_data: dict):
 
 async def get_requests_from_database():
     requests = await Message.find_all().to_list()
-
+    print(requests)
     if requests:
-        request_dictionaries = {}
+        request_list = []
         for request in requests:
-            request_dictionaries[request.student_id] = {
+            request_list.append({
                 "student_id": request.student_id,
                 "heading": request.heading,
                 "message": request.message,
@@ -106,18 +107,18 @@ async def get_requests_from_database():
                 "handled": request.handled,
                 "handled_at": request.handled_at,
                 "response": request.response
-            }
+            })
         
         return {
             "success": True,
             "message": "Lấy danh sách yêu cầu thành công",
-            "data": request_dictionaries
+            "data": request_list
         }
     
     return {
         "success": False,
         "message": "Không có yêu cầu nào",
-        "data": None
+        "data": []
     }
 
 async def update_request_in_database(request_data: dict):

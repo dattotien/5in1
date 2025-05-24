@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import { List, Button, Modal, Form, Input } from "antd";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { Table, Button, Modal, Form, Input, Pagination, Tag } from "antd";
 import axios from "axios";
+import "./FeedBackResponse.css";
+import type { ColumnType } from "antd/es/table";
+
 type RequestType = {
   student_id: string;
   heading: string;
@@ -10,6 +12,7 @@ type RequestType = {
   create_at: string;
   handled_at?: string;
   response?: string;
+  full_name?: string; // Thêm nếu có
 };
 
 function FeedBackResponse() {
@@ -18,6 +21,8 @@ function FeedBackResponse() {
   const [openModal, setOpenModal] = useState(false);
   const [selected, setSelected] = useState<RequestType | null>(null);
   const [form] = Form.useForm();
+  const [current, setCurrent] = useState(1);
+  const pageSize = 5;
 
   useEffect(() => {
     async function fetchData() {
@@ -26,8 +31,21 @@ function FeedBackResponse() {
         const response = await axios.get(
           "http://127.0.0.1:8000/api/user/get_requests"
         );
-        const result = Object.values(response.data.data || {});
-        setData(result as RequestType[]);
+        const result = response.data.data || [];
+
+        const requestsWithName = await Promise.all(
+          result.map(async (item: RequestType) => {
+            try {
+              const res = await axios.get(
+                `http://127.0.0.1:8000/api/admin/get-student/${item.student_id}`
+              );
+              return { ...item, full_name: res.data.data.full_name || "" };
+            } catch {
+              return { ...item, full_name: "" };
+            }
+          })
+        );
+        setData(requestsWithName as RequestType[]);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -38,7 +56,6 @@ function FeedBackResponse() {
   }, []);
 
   const handleDetail = (item: RequestType) => {
-    console.log("Chi tiết item:", item);
     setSelected(item);
     setOpenModal(true);
     form.resetFields();
@@ -54,7 +71,6 @@ function FeedBackResponse() {
     form
       .validateFields()
       .then(async (values) => {
-        console.log(selected?.heading);
         try {
           await axios.put("http://127.0.0.1:8000/api/user/update_request", {
             student_id: selected?.student_id,
@@ -73,37 +89,97 @@ function FeedBackResponse() {
       .catch(() => {});
   };
 
-  return (
-    <>
-      <List
-        pagination={{ position: "bottom", align: "center" }}
-        dataSource={data}
-        renderItem={(item) => (
-          <List.Item
-            style={{
-              background: item.handled ? "#e6fffb" : undefined, // xanh nhạt nếu đã xử lý
-              transition: "background 0.3s",
-            }}
-            actions={[
-              <Button
-                key="detail"
-                type="link"
-                onClick={() => handleDetail(item)}
-              >
-                Xem chi tiết
-              </Button>,
-            ]}
-          >
-            <List.Item.Meta
-              title={<p>{item.heading}</p>}
-              description={`Ngày gửi: ${new Date(
-                item.create_at
-              ).toLocaleString()}`}
-            />
-          </List.Item>
-        )}
-      />
+  const columns: ColumnType<RequestType>[] = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      render: (_: any, __: any, idx: number) =>
+        (current - 1) * pageSize + idx + 1,
+      width: 60,
+      align: "center",
+    },
+    {
+      title: "Mã sinh viên",
+      dataIndex: "student_id",
+      key: "student_id",
+      width: 130,
+      align: "center",
+      sorter: (a: RequestType, b: RequestType) =>
+        a.student_id.localeCompare(b.student_id),
+      sortDirections: ["ascend", "descend"],
+    },
+    {
+      title: "Tên đầy đủ",
+      dataIndex: "full_name",
+      key: "full_name",
+      width: 180,
+      align: "center",
+      render: (_: any, record: RequestType) => record.full_name || "",
+    },
+    {
+      title: "Tiêu đề feedback",
+      dataIndex: "heading",
+      key: "heading",
+      width: 400,
+      align: "center",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "handled",
+      key: "handled",
+      width: 200,
+      align: "center",
+      filters: [
+        { text: "Đã xử lý", value: true },
+        { text: "Chưa xử lý", value: false },
+      ],
+      onFilter: (value: boolean | React.Key, record: RequestType) =>
+        record.handled === Boolean(value),
+      render: (handled: boolean) =>
+        handled ? (
+          <Tag color="green">Đã xử lý</Tag>
+        ) : (
+          <Tag color="red">Chưa xử lý</Tag>
+        ),
+    },
+    {
+      title: "Hành động",
+      onFilter: (value: boolean | React.Key, record: RequestType) =>
+        record.handled === Boolean(value),
+      align: "center",
+      render: (_: any, record: RequestType) => (
+        <Button type="link" onClick={() => handleDetail(record)}>
+          Xem chi tiết
+        </Button>
+      ),
+    },
+  ];
 
+  const paginatedData = data.slice(
+    (current - 1) * pageSize,
+    current * pageSize
+  );
+
+  return (
+    <div className="feedback-container">
+      <h1>Danh sách phản hồi sinh viên</h1>
+      <Table
+        className="admin-feedback-table"
+        columns={columns}
+        dataSource={paginatedData}
+        rowKey={(record) => record.student_id + record.heading}
+        loading={loading}
+        pagination={false}
+        bordered
+      />
+      <Pagination
+        style={{ alignSelf: "center", margin: "24px 0" }}
+        current={current}
+        pageSize={pageSize}
+        total={data.length}
+        onChange={setCurrent}
+      />
       <Modal
         open={openModal}
         title={selected ? selected.heading : ""}
@@ -131,7 +207,7 @@ function FeedBackResponse() {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 }
 
