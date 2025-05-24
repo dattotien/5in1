@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
-from backend.service.admin_service import update_student, add_student_to_database
-from backend.entities.student import Student
+from service.admin_service import update_student, add_student_to_database
+from entities.student import Student
 import base64
 from typing import Optional, List
 

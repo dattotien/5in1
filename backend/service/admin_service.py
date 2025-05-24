@@ -1,10 +1,10 @@
-from backend.entities.student import Student
+from entities.student import Student
 from beanie import PydanticObjectId
 from datetime import datetime
 from typing import Optional, List
-from backend.entities.student import Student
+from entities.student import Student
 from datetime import datetime
-from backend.service.face_service import get_image_encoding
+from service.face_service import get_image_encoding
 import base64
 
 

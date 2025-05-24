@@ -5,9 +5,9 @@ import torch
 import asyncio
 from datetime import datetime
 from fastapi import UploadFile, HTTPException, WebSocket
-from backend.entities.attendance import Attendance
-from backend.entities.student import Student
-from backend.service.model import mtcnn, resnet, device
+from entities.attendance import Attendance
+from entities.student import Student
+from service.model import mtcnn, resnet, device
 from scipy.spatial.distance import cosine
 from io import BytesIO
 from PIL import Image

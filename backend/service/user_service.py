@@ -1,7 +1,7 @@
-from backend.config.database import Database
-from backend.core.security import hash_password
-from backend.entities.user import User
-from backend.entities.message import Message
+from config.database import Database
+from core.security import hash_password
+from entities.user import User
+from entities.message import Message
 from datetime import datetime
 
 async def user_to_dict(user: User):
