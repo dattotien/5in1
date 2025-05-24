@@ -10,13 +10,20 @@ const { TabPane } = Tabs;
 
 const AttendanceTabs: React.FC = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<"stream" | "upload" | "classList">("stream");
+  const [activeTab, setActiveTab] = useState<"stream" | "upload" | "classList">(
+    "stream"
+  );
 
   return (
-    <div className="attendance-container" style={{ maxWidth: 900, margin: "0 auto" }}>
+    <div
+      className="attendance-container"
+      style={{ maxWidth: 900, margin: "0 auto" }}
+    >
       <Tabs
         activeKey={activeTab}
-        onChange={(key) => setActiveTab(key as "stream" | "upload" | "classList")}
+        onChange={(key) =>
+          setActiveTab(key as "stream" | "upload" | "classList")
+        }
         type="line"
         size="middle"
       >
@@ -30,7 +37,7 @@ const AttendanceTabs: React.FC = () => {
         </TabPane>
 
         <TabPane tab={t("tabs.overview")} key="classList">
-          <AttendanceList />
+          <AttendanceList activeTab={activeTab} />
         </TabPane>
       </Tabs>
     </div>
