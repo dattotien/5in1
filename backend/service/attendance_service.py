@@ -55,36 +55,90 @@ async def get_attendance_by_id(student_id: str):
         return {"success": False, "message": f"Lỗi: {str(e)}", "data": None}
 
 async def add_attendance(image: str):
-    notification = await stream_face_recognition(image)
-    
-    if notification["success"]:
-        time_str = notification["data"]["time"]  # ví dụ: '11:40:44'
-        full_time_str = f"{date.today()} {time_str}"  # ví dụ: '2025-05-19 11:40:44'
-        time_obj = datetime.strptime(full_time_str, "%Y-%m-%d %H:%M:%S")
+    try:
+        # 1. Nhận diện khuôn mặt
+        notification = await stream_face_recognition(image)
         
-        attendance = Attendance(
-            student_id=notification["data"]["student_id"],
-            full_name=notification["data"]["full_name"],
-            status=True,
-            create_at=time_obj
-        )
-        await attendance.insert()
-        
-        return {
-            "success": True,
-            "message": "Đã điểm danh",
-            "data": {
-                "student_id": notification["data"]["student_id"],
-                "time": time_obj,
-                "status": True
+        if not notification["success"]:
+            return {
+                "success": False,
+                "message": notification["message"],
+                "data": None
             }
-        }
+
+        # 2. Validate dữ liệu nhận diện
+        if not all(key in notification["data"] for key in ["student_id", "full_name", "time"]):
+            return {
+                "success": False,
+                "message": "Dữ liệu nhận diện không hợp lệ",
+                "data": None
+            }
+
+        student_id = notification["data"]["student_id"]
+        full_name = notification["data"]["full_name"]
+        time_str = notification["data"]["time"]
+
+        # 3. Kiểm tra điểm danh trùng trong ngày
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = today_start + timedelta(days=1)
         
-    return {
-        "success": False,
-        "message": notification["message"],
-        "data": None
-    }
+        existing_attendance = await Attendance.find_one({
+            "student_id": student_id,
+            "create_at": {
+                "$gte": today_start,
+                "$lt": today_end
+            }
+        })
+        
+        if existing_attendance:
+            return {
+                "success": False,
+                "message": "Sinh viên đã điểm danh trong ngày hôm nay",
+                "data": {
+                    "student_id": student_id,
+                    "full_name": full_name,
+                    "time": existing_attendance.create_at,
+                    "status": existing_attendance.status
+                }
+            }
+
+        # 4. Tạo bản ghi điểm danh mới
+        try:
+            current_date = datetime.utcnow().date()
+            full_time_str = f"{current_date} {time_str}"
+            time_obj = datetime.strptime(full_time_str, "%Y-%m-%d %H:%M:%S")
+            
+            attendance = Attendance(
+                student_id=student_id,
+                full_name=full_name,
+                status=True,
+                create_at=time_obj
+            )
+            await attendance.insert()
+            
+            return {
+                "success": True,
+                "message": "Đã điểm danh thành công",
+                "data": {
+                    "student_id": student_id,
+                    "full_name": full_name,
+                    "time": time_obj,
+                    "status": True
+                }
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "message": f"Lỗi khi lưu điểm danh: {str(e)}",
+                "data": None
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}",
+            "data": None
+        }
 
 # async def add_attendance(attendance_data: dict):
 #     try:

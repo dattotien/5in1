@@ -25,8 +25,8 @@ export default function UserLayout() {
           <NavLink to="" end>
             {t("attendance")}
           </NavLink>
-          <NavLink to="schedule">{t("schedule")}</NavLink>
           <NavLink to="feedback">{t("feedback")}</NavLink>
+          <NavLink to="aboutus">{t("aboutus")}</NavLink>
 
           <button className="nav-button" onClick={handleLogout}>
             <LogoutOutlined style={{ marginRight: 6 }} />

@@ -1,7 +1,7 @@
 {
   "title": "Hệ thống điểm danh sinh viên",
   "attendance": "Điểm danh",
-  "schedule": "Lịch học",
+  "aboutus": "Về chúng tôi",
   "feedback": "Phản hồi",
   "logout": "Đăng xuất",
   "change_language": "Thay đổi ngôn ngữ",
@@ -41,12 +41,22 @@
   },
 
   "upload": {
-    "drop_here": "Kéo & thả ảnh vào đây hoặc nhấn để chọn ảnh",
-    "only_support": "(Chỉ hỗ trợ ảnh định dạng JPG, PNG...)",
-    "remove_image": "Xóa ảnh",
+    "prompt": "Kéo và thả ảnh tại đây hoặc bấm để chọn ảnh",
+    "note": "Chỉ hỗ trợ ảnh định dạng PNG, JPG"
+  },
+  "button": {
+    "remove": "Xóa ảnh",
     "recognize": "Nhận diện",
-    "recognized": "Đã nhận diện",
-    "start_recognition": "Bắt đầu nhận diện khuôn mặt..."
+    "recognized": "Đã nhận diện"
+  },
+  "recognize": {
+    "success": "Nhận diện thành công",
+    "failed": "Nhận diện thất bại",
+    "error": "Lỗi khi gửi ảnh nhận diện"
+  },
+  "confirm": {
+    "sent": "Đã gửi xác nhận điểm danh",
+    "error": "Xác nhận điểm danh thất bại. Vui lòng thử lại."
   },
 
   "attendanceList": {
@@ -60,17 +70,6 @@
     "absent": "Vắng"
   },
 
-  "schedulePage": {
-    "title": "Lịch học"
-  },
-
-  "scheduleTable": {
-    "no": "STT",
-    "subjectName": "Tên môn học",
-    "classCode": "Mã lớp học phần",
-    "time": "Thời gian"
-  },
-
   "feedbackPage": {
     "title": "Trung tâm phản hồi",
     "tabs": {
@@ -80,25 +79,55 @@
   },
 
   "feedbackForm": {
-    "titleLabel": "Tiêu đề",
-    "contentLabel": "Nội dung",
-    "titlePlaceholder": "Nhập tiêu đề...",
-    "contentPlaceholder": "Nhập nội dung phản hồi...",
-    "submitButton": "Gửi",
-    "requiredMark": "*",
-    "successMessage": "Gửi thành công!",
-    "failureMessage": "Gửi thất bại!"
+    "title": "Tiêu đề",
+    "content": "Nội dung",
+    "titlePlaceholder": "Nhập tiêu đề",
+    "contentPlaceholder": "Nhập nội dung",
+    "submit": "Gửi",
+    "fillAllFields": "Vui lòng điền đầy đủ thông tin.",
+    "success": "Gửi yêu cầu thành công!",
+    "fail": "Không thể gửi yêu cầu.",
+    "errorOccurred": "Đã xảy ra lỗi khi gửi yêu cầu."
   },
 
-  "feedbackList": {
-    "no": "STT",
-    "title": "Tiêu đề",
-    "status": "Trạng thái",
-    "statuses": {
-      "pending": "Đang chờ",
-      "resolved": "Đã giải quyết",
-      "rejected": "Bị từ chối"
+  "feedbackListPage": {
+    "searchPlaceholder": "Tìm theo tiêu đề hoặc nội dung",
+    "sort": {
+      "label": "-- Sắp xếp --",
+      "createdAt": "Theo ngày tạo",
+      "title": "Theo tiêu đề",
+      "status": "Theo trạng thái"
+    },
+    "totalRequests": "Tổng số yêu cầu: {{count}}",
+    "table": {
+      "no": "STT",
+      "studentId": "Mã sinh viên",
+      "title": "Tiêu đề",
+      "status": "Trạng thái",
+      "action": "Hành động",
+      "statusResolved": "Đã xử lý",
+      "statusPending": "Chưa xử lý",
+      "toggleShow": "Xem chi tiết",
+      "toggleHide": "Ẩn chi tiết"
+    },
+    "detail": {
+      "content": "Nội dung",
+      "createdAt": "Ngày tạo",
+      "handledAt": "Ngày xử lý",
+      "response": "Phản hồi",
+      "notAvailable": "N/A",
+      "noResponse": "Chưa có phản hồi"
+    }
+  },
+
+  "aboutUs": {
+    "teamTitle": "Nhóm Phát Triển",
+    "teamDescription": "Sản phẩm của nhóm 5in1 trong môn Thực hành phát triển hệ thống Trí tuệ nhân tạo",
+    "studentId": "MSV",
+    "roles": {
+      "backendDeveloper": "Backend Developer",
+      "databaseAssistant": "Database & Infrastructure Assistant",
+      "frontendDeveloper": "Frontend Developer"
     }
   }
-
 }

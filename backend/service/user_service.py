@@ -55,7 +55,8 @@ async def login_user(user_data: dict):
                 "message": "Đăng nhập thành công",
                 "data": {
                     "username": user_data["username"],
-                    "role": user["data"]["role"]
+                    "role": user["data"]["role"],
+                    "student_id": user["data"]["student_id"]
                 }
             }
             

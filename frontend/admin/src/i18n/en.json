@@ -1,7 +1,7 @@
 {
   "title": "Student Attendance System",
   "attendance": "Attendance",
-  "schedule": "Schedule",
+  "aboutus": "About Us",
   "feedback": "Feedback",
   "logout": "Logout",
   "change_language": "Change language",
@@ -41,12 +41,22 @@
   },
 
   "upload": {
-    "drop_here": "Drag & drop an image here or click to select one",
-    "only_support": "(Supports only JPG, PNG...)",
-    "remove_image": "Remove image",
+    "prompt": "Drag&drop an image here or click to select one",
+    "note": "Only PNG and JPG formats are supported"
+  },
+  "button": {
+    "remove": "Remove",
     "recognize": "Recognize",
-    "recognized": "Recognized",
-    "start_recognition": "Starting face recognition..."
+    "recognized": "Recognized"
+  },
+  "recognize": {
+    "success": "Recognition successful",
+    "failed": "Recognition failed",
+    "error": "Error sending image for recognition"
+  },
+  "confirm": {
+    "sent": "Attendance confirmation sent",
+    "error": "Attendance confirmation failed. Please try again."
   },
 
   "attendanceList": {
@@ -59,18 +69,6 @@
     "present": "Present",
     "absent": "Absent"
   },
-  
-  "schedulePage": {
-    "title": "Class Schedule"
-  },
-
-
-  "scheduleTable": {
-    "no": "No.",
-    "subjectName": "Subject Name",
-    "classCode": "Class Code",
-    "time": "Time"
-  },
 
   "feedbackPage": {
     "title": "Feedback Hub",
@@ -81,15 +79,17 @@
   },
 
   "feedbackForm": {
-    "titleLabel": "Title",
-    "contentLabel": "Content",
-    "titlePlaceholder": "Enter title...",
-    "contentPlaceholder": "Enter your feedback...",
-    "submitButton": "Submit",
-    "requiredMark": "*",
-    "successMessage": "Sent successfully!",
-    "failureMessage": "Sending failed!"
+    "title": "Title",
+    "content": "Content",
+    "titlePlaceholder": "Enter title",
+    "contentPlaceholder": "Enter content",
+    "submit": "Submit",
+    "fillAllFields": "Please fill in all fields.",
+    "success": "Request sent successfully!",
+    "fail": "Unable to send request.",
+    "errorOccurred": "An error occurred while sending the request."
   },
+
 
   "feedbackList": {
     "no": "No.",
@@ -100,8 +100,48 @@
       "resolved": "Resolved",
       "rejected": "Rejected"
     }
-  }
+  },
 
+  "feedbackListPage": {
+    "searchPlaceholder": "Search by title or content",
+    "sort": {
+      "label": "-- Sort --",
+      "createdAt": "By created date",
+      "title": "By title",
+      "status": "By status"
+    },
+    "totalRequests": "Total requests: {{count}}",
+    "table": {
+      "no": "No.",
+      "studentId": "Student ID",
+      "title": "Title",
+      "status": "Status",
+      "action": "Action",
+      "statusResolved": "Resolved",
+      "statusPending": "Pending",
+      "toggleShow": "Show details",
+      "toggleHide": "Hide details"
+    },
+    "detail": {
+      "content": "Content",
+      "createdAt": "Created At",
+      "handledAt": "Handled At",
+      "response": "Response",
+      "notAvailable": "N/A",
+      "noResponse": "No response yet"
+    }
+  },
+
+  "aboutUs": {
+    "teamTitle": "Development Team",
+    "teamDescription": "Product of the 5in1 team for the Practical AI Systems course",
+    "studentId": "Student ID",
+    "roles": {
+      "backendDeveloper": "Backend Developer",
+      "databaseAssistant": "Database & Infrastructure Assistant",
+      "frontendDeveloper": "Frontend Developer"
+    }
+  }
 }
 
 

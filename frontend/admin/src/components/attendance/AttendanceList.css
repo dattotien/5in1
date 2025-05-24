@@ -22,3 +22,14 @@
 .attendance-list tbody tr:hover {
   background-color: #f5f5f5;
 }
+
+/* Status colors */
+.status-present {
+  font-weight: bold;
+  color: #16a34a; /* xanh lá */
+}
+
+.status-absent {
+  font-weight: bold;
+  color: #dc2626; /* đỏ */
+}

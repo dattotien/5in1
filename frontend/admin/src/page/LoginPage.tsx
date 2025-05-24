@@ -25,6 +25,9 @@ function LoginPage() {
       console.log(res.data);
       if (res.data.success) {
         setLoginError(false);
+        localStorage.setItem("student_id", res.data.data.student_id);
+        localStorage.setItem("username", res.data.data.username);
+        localStorage.setItem("role", res.data.data.role);
         if (res.data.data.role === "admin") {
           navigate("/admin");
         } else {
