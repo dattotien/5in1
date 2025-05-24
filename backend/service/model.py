@@ -8,7 +8,7 @@ import numpy as np
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # Model MTCNN -> detect + crop faces
 mtcnn = MTCNN(keep_all=True, device=device)
-
+print(torch.cuda.is_available())
 # Model ResNet -> embedding faces
 resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
 

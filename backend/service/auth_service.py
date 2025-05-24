@@ -13,4 +13,11 @@ async def login_user(username: str, password: str):
     if not user:
         return None
     token = create_access_token({"sub": user["username"], "role": user["role"]})
-    return {"access_token": token, "token_type": "bearer", "role": user["role"]}
+    return {
+            "access_token": token,
+            "token_type": "bearer",
+            "role": user["role"],
+            "username": user["username"],
+            "student_id": user["student_id"],
+            "full_name": user.get("full_name", user["username"])  
+        }

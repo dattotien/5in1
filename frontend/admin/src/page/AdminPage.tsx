@@ -55,7 +55,7 @@ const items: MenuItem[] = [
 
 const App: React.FC = () => {
   const navigate = useNavigate();
-
+  const userName = localStorage.getItem("userName") || "Admin";
   const handleLogout = () => {
     navigate("/");
   };
@@ -64,7 +64,7 @@ const App: React.FC = () => {
       <Sider className="site-layout">
         <div className="logo">
           <Avatar className="avatar" size={64} icon={<UserOutlined />} />
-          <p className="name">PGS. TS Trần Thu Hà</p>
+          <p className="name">{userName}</p>
         </div>
         <Menu
           className="Menu"

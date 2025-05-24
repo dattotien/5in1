@@ -28,6 +28,7 @@ function LoginPage() {
         localStorage.setItem("student_id", res.data.data.student_id);
         localStorage.setItem("username", res.data.data.username);
         localStorage.setItem("role", res.data.data.role);
+        localStorage.setItem("userName", res.data.data.full_name);
         if (res.data.data.role === "admin") {
           navigate("/admin");
         } else {

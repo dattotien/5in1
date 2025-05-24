@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from backend.service.admin_service import update_student, add_student_to_database
 from backend.entities.student import Student
 import base64
-from typing import Optional, List
+from typing import Optional, List, Any
 from backend.service.user_service import (
     add_request_to_database,
     get_requests_from_database,
@@ -16,8 +16,7 @@ router = APIRouter()
 class ResponseModel(BaseModel):
     success: bool
     message: str
-    data: Optional[dict] = None
-
+    data: Optional[Any] = None
 @router.post("/send_request", response_model=ResponseModel)
 async def send_request(user_data: dict):
     return await add_request_to_database(user_data)
