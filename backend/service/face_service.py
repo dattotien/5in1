@@ -49,7 +49,7 @@ async def get_image_encoding(image: str, mtcnn=mtcnn, resnet=resnet, device=devi
 
     image_encoding = resnet(faces[0].unsqueeze(0).to(device)).detach().cpu().numpy().flatten()
 
-    if image_encoding:
+    if image_encoding is not None and image_encoding.size > 0:
         return {
             "success": True,
             "message": "Đã nhận diện được mặt ở trong hình ảnh",
