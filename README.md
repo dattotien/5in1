@@ -3,12 +3,104 @@
 Dự án này là một hệ thống điểm danh sử dụng nhận diện khuôn mặt, được xây dựng với các công nghệ hiện đại và kiến trúc microservices. Hệ thống cho phép tự động hóa quá trình điểm danh trong môi trường học tập thông qua việc sử dụng công nghệ AI để nhận diện khuôn mặt.
 
 ### Tính năng chính:
-- **Nhận diện khuôn mặt thời gian thực**: Sử dụng MTCNN để phát hiện và căn chỉnh khuôn mặt, kết hợp với InceptionResNet-V1 để trích xuất đặc trưng khuôn mặt với độ chính xác cao
-- **Xử lý đa luồng**: Có khả năng nhận diện nhiều khuôn mặt cùng lúc trong một khung hình
-- **Lưu trữ an toàn**: Mã hóa và lưu trữ an toàn các đặc trưng khuôn mặt trong MongoDB
-- **Giao diện thân thiện**: Dashboard trực quan cho cả người dùng và quản trị viên
-- **API RESTful**: Backend được xây dựng với FastAPI, cung cấp API hiệu suất cao và có tài liệu tự động
-- **Khả năng mở rộng**: Kiến trúc microservices cho phép dễ dàng scale từng service độc lập
+- **Nhận diện khuôn mặt thời gian thực**: 
+  - Sử dụng MTCNN để phát hiện và căn chỉnh khuôn mặt
+  - Áp dụng InceptionResNet-V1 để trích xuất đặc trưng khuôn mặt (512-dimensional face embeddings)
+  - Tối ưu hóa thời gian xử lý với PyTorch và CUDA acceleration
+  
+- **Phát hiện đa khuôn mặt**: 
+  - Có khả năng phát hiện nhiều khuôn mặt trong cùng một khung hình
+  - Thực hiện điểm danh từng người một để đảm bảo độ chính xác
+  - Hỗ trợ điều chỉnh ngưỡng nhận diện (confidence threshold)
+
+- **Xử lý dữ liệu thông minh**:
+  - Tự động chuẩn hóa và làm sạch dữ liệu đầu vào
+  - Hệ thống chống giả mạo khuôn mặt (anti-spoofing)
+  - Lưu trữ và mã hóa an toàn face embeddings
+
+### Kiến trúc Hệ thống Chi tiết:
+
+#### 1. Frontend Service (Port 3000):
+- **Công nghệ**: React + TypeScript
+- **Tính năng**:
+  - Giao diện điểm danh trực quan
+  - Tích hợp WebSocket cho cập nhật thời gian thực
+  - Responsive design cho nhiều thiết bị
+  - Tối ưu hóa performance với React.memo và useMemo
+
+#### 2. Admin Dashboard (Port 3001):
+- **Công nghệ**: React + TypeScript
+- **Tính năng**:
+  - Quản lý thông tin sinh viên và lớp học
+  - Thống kê và báo cáo chi tiết
+  - Quản lý phiên điểm danh
+  - Export dữ liệu đa định dạng
+
+#### 3. Backend Service (Port 8000):
+- **Công nghệ**: FastAPI + Python 3.8
+- **Core Features**:
+  - Face Recognition Pipeline
+  - RESTful API với OpenAPI documentation
+  - JWT Authentication
+  - Rate limiting và request validation
+- **Modules**:
+  - /auth: Xác thực và phân quyền
+  - /users: Quản lý người dùng
+  - /attendance: Xử lý điểm danh
+  - /reports: Tạo báo cáo
+
+#### 4. Database Layer:
+- **MongoDB**:
+  - Collections:
+    - users: Thông tin người dùng
+    - attendance: Lịch sử điểm danh
+    - face_data: Face embeddings (được mã hóa)
+    - classes: Thông tin lớp học
+  - Indexes tối ưu cho truy vấn
+  - Automatic backups
+
+### Quy trình Hoạt động:
+
+1. **Đăng ký Khuôn Mặt**:
+   ```
+   Camera Input -> MTCNN Detection -> Face Alignment -> 
+   InceptionResNet-V1 -> Face Embedding -> MongoDB Storage
+   ```
+
+2. **Quá trình Điểm Danh**:
+   ```
+   Camera Stream -> Face Detection -> Feature Extraction -> 
+   Face Matching -> Attendance Recording -> Real-time Update
+   ```
+
+### Bảo mật và An toàn:
+
+1. **Mã hóa Dữ liệu**:
+   - Face embeddings được mã hóa trước khi lưu trữ
+   - Sử dụng HTTPS cho mọi kết nối
+   - JWT với refresh token rotation
+
+2. **Validation và Sanitization**:
+   - Input validation cho mọi API endpoint
+   - Sanitization cho dữ liệu người dùng
+   - Rate limiting cho API calls
+
+3. **Access Control**:
+   - Role-based access control (RBAC)
+   - IP-based access restrictions
+   - Session management
+
+### Khả năng Mở rộng:
+
+1. **Horizontal Scaling**:
+   - Stateless backend services
+   - Load balancing với Nginx
+   - MongoDB replication support
+
+2. **Monitoring & Logging**:
+   - Detailed API logs
+   - Performance metrics
+   - Error tracking và alerting
 
 ### Công nghệ sử dụng:
 - **Frontend**: 
