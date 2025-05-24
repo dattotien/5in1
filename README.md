@@ -100,8 +100,12 @@ docker-compose up -d
 - Backend API: http://localhost:8000
 
 4. **Thông tin đăng nhập mặc định**
-- Username: admin
-- Password: admin123
+*User:
+   - Username: haanh
+   - Password: 23020353
+*Admin
+   - Username: datto
+   - Password: 23020353
 
 ## 📝 API Documentation
 

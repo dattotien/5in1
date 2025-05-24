@@ -156,7 +156,7 @@ async def stream_face_recognition(image: str, mtcnn=mtcnn, resnet=resnet, device
 
         return {
             "success": False,
-            "message": "Không nhận diện được khuôn mặt",
+            "message": "Không phát hiện khuôn mặt nào",
             "data": {
                 "frame": "data:image/jpeg;base64," + frame_with_box_base64,
                 "need_confirm": False,
