@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import FeedbackForm from "../components/feedback/FeedbackForm";
 import FeedbackList from "../components/feedback/FeedbackList";
-import './FeedbackPage.css';
+import "./FeedbackPage.css";
 
 const { TabPane } = Tabs;
 
@@ -14,7 +14,7 @@ const FeedbackPage: React.FC = () => {
 
   return (
     <div className="feedback-page">
-      <h2>{t('feedbackPage.title')}</h2>
+      <h2>{t("feedbackPage.title")}</h2>
       <div className="feedback-container">
         <Tabs
           activeKey={activeTab}
@@ -22,11 +22,11 @@ const FeedbackPage: React.FC = () => {
           type="line"
           size="middle"
         >
-          <TabPane tab={t('feedbackPage.tabs.form')} key="form">
+          <TabPane tab={t("feedbackPage.tabs.form")} key="form">
             <FeedbackForm />
           </TabPane>
-          <TabPane tab={t('feedbackPage.tabs.list')} key="list">
-            <FeedbackList />
+          <TabPane tab={t("feedbackPage.tabs.list")} key="list">
+            <FeedbackList activeTab={activeTab} />
           </TabPane>
         </Tabs>
       </div>

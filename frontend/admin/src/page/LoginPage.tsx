@@ -8,6 +8,7 @@ import axios from "axios";
 import "./LoginPage.css";
 function LoginPage() {
   const [loginError, setLoginError] = useState(false);
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   interface LoginFormValues {
     username: string;
@@ -17,6 +18,13 @@ function LoginPage() {
 
   const onFinish = async (values: LoginFormValues) => {
     try {
+      if (values.remember) {
+        localStorage.setItem("remembered_username", values.username);
+        localStorage.setItem("remembered_password", values.password);
+      } else {
+        localStorage.removeItem("remembered_username");
+        localStorage.removeItem("remembered_password");
+      }
       const res = await axios.post(
         "http://127.0.0.1:8000/api/auth/login",
         values
@@ -50,7 +58,17 @@ function LoginPage() {
     values: any;
     outOfDate: boolean;
   }
-
+  React.useEffect(() => {
+    const savedUsername = localStorage.getItem("remembered_username");
+    const savedPassword = localStorage.getItem("remembered_password");
+    if (savedUsername && savedPassword) {
+      form.setFieldsValue({
+        username: savedUsername,
+        password: savedPassword,
+        remember: true,
+      });
+    }
+  }, [form]);
   const onFinishFailed = (errorInfo: OnFinishFailedInfo) => {
     console.log("Failed:", errorInfo);
   };
@@ -72,6 +90,7 @@ function LoginPage() {
       <div className="r_box">
         <Card className="r_card">
           <Form
+            form={form}
             name="basic"
             className="login-form"
             onFinish={onFinish}
