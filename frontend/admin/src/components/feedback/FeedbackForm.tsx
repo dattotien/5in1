@@ -1,35 +1,59 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState, useEffect } from "react";
 import './FeedbackForm.css';
+import { useTranslation } from "react-i18next";
 
 const FeedbackForm: React.FC = () => {
   const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !content) return;
 
-    const res = await fetch("/api/feedbacks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content }),
-    });
+    const studentId = localStorage.getItem("student_id");
+    if (!studentId || !title || !content) {
+      setMessage({ type: "error", text: t("feedbackForm.fillAllFields") });
+      return;
+    }
 
-    if (res.ok) {
-      setTitle("");
-      setContent("");
-      alert(t("feedbackForm.successMessage"));
-    } else {
-      alert(t("feedbackForm.failureMessage"));
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/user/send_request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student_id: studentId,
+          heading: title,
+          message: content,
+        }),
+      });
+
+      if (res.ok) {
+        setTitle("");
+        setContent("");
+        setMessage({ type: "success", text: t("feedbackForm.success") });
+      } else {
+        setMessage({ type: "error", text: t("feedbackForm.fail") });
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage({ type: "error", text: t("feedbackForm.errorOccurred") });
     }
   };
 
   return (
     <form className="feedback-form" onSubmit={handleSubmit}>
       <label>
-        {t("feedbackForm.titleLabel")} <span className="required">{t("feedbackForm.requiredMark")}</span>
+        {t("feedbackForm.title")} <span className="required">*</span>
       </label>
       <input
         type="text"
@@ -40,7 +64,7 @@ const FeedbackForm: React.FC = () => {
       />
 
       <label>
-        {t("feedbackForm.contentLabel")} <span className="required">{t("feedbackForm.requiredMark")}</span>
+        {t("feedbackForm.content")} <span className="required">*</span>
       </label>
       <textarea
         value={content}
@@ -50,7 +74,13 @@ const FeedbackForm: React.FC = () => {
         required
       />
 
-      <button type="submit">{t("feedbackForm.submitButton")}</button>
+      <button type="submit">{t("feedbackForm.submit")}</button>
+
+      {message && (
+        <div className={`form-message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
     </form>
   );
 };
