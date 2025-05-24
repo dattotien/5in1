@@ -1,27 +1,13 @@
+version: "3.9"
 services:
   backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: attendance_backend
-    restart: always
+    image: haanh05/thptht-backend:latest
     ports:
       - "8000:8000"
-    networks:
-      - attendance_network
+    restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./frontend/admin
-      dockerfile: Dockerfile
-    container_name: frontend
+  admin:
+    image: haanh05/thptht-admin:latest
     ports:
       - "5173:5173"
-    depends_on:
-      - backend
-    networks:
-      - attendance_network
-
-networks:
-  attendance_network:
-
+    restart: unless-stopped
