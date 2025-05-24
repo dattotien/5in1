@@ -1,6 +1,38 @@
 # HỆ THỐNG ĐIỂM DANH BẰNG KHUÔN MẶT
 
-Dự án này là một hệ thống điểm danh sử dụng nhận diện khuôn mặt, được xây dựng với các công nghệ hiện đại và kiến trúc microservices.
+Dự án này là một hệ thống điểm danh sử dụng nhận diện khuôn mặt, được xây dựng với các công nghệ hiện đại và kiến trúc microservices. Hệ thống cho phép tự động hóa quá trình điểm danh trong môi trường học tập thông qua việc sử dụng công nghệ AI để nhận diện khuôn mặt.
+
+### Tính năng chính:
+- **Nhận diện khuôn mặt thời gian thực**: Sử dụng MTCNN để phát hiện và căn chỉnh khuôn mặt, kết hợp với InceptionResNet-V1 để trích xuất đặc trưng khuôn mặt với độ chính xác cao
+- **Xử lý đa luồng**: Có khả năng nhận diện nhiều khuôn mặt cùng lúc trong một khung hình
+- **Lưu trữ an toàn**: Mã hóa và lưu trữ an toàn các đặc trưng khuôn mặt trong MongoDB
+- **Giao diện thân thiện**: Dashboard trực quan cho cả người dùng và quản trị viên
+- **API RESTful**: Backend được xây dựng với FastAPI, cung cấp API hiệu suất cao và có tài liệu tự động
+- **Khả năng mở rộng**: Kiến trúc microservices cho phép dễ dàng scale từng service độc lập
+
+### Công nghệ sử dụng:
+- **Frontend**: 
+  - React.js với TypeScript
+  - Material-UI cho giao diện người dùng
+  - WebSocket cho cập nhật thời gian thực
+  
+- **Backend**: 
+  - FastAPI framework
+  - PyTorch cho deep learning
+  - MTCNN và InceptionResNet-V1 cho face recognition
+  - JWT cho authentication
+  
+- **Database**: 
+  - MongoDB cho lưu trữ dữ liệu
+  - Redis cho caching
+  
+- **DevOps**: 
+  - Docker và Docker Compose
+  - Nginx cho reverse proxy
+  - GitHub Actions cho CI/CD
+
+### Use Cases:
+
 
 ## Mục lục
 - [Tổng quan](#tổng-quan)
