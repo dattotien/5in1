@@ -91,13 +91,13 @@ cd <project_folder>
 
 2. **Khởi động hệ thống**
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
 
 3. **Truy cập services**
-- Frontend: http://localhost:3000
-- Admin Dashboard: http://localhost:3001
-- Backend API: http://localhost:8000
+- Frontend: [http://localhost:3000](http://localhost:5173/)
+- Admin Dashboard: [http://localhost:3001](http://localhost:5173/admin)
+- Backend API: http://localhost:8000/
 
 4. **Thông tin đăng nhập mặc định**
 - **User**:
