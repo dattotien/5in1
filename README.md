@@ -91,7 +91,7 @@ cd <project_folder>
 
 2. **Khởi động hệ thống**
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 3. **Truy cập services**
