@@ -12,7 +12,7 @@ interface RecognitionData {
 }
 
 interface StreamAttendanceProps {
-  active: boolean; // prop mới để bật/tắt webcam
+  active: boolean; 
 }
 
 const StreamAttendance: React.FC<StreamAttendanceProps> = ({ active }) => {
@@ -29,7 +29,6 @@ const StreamAttendance: React.FC<StreamAttendanceProps> = ({ active }) => {
   const lastCaptureTimeRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
 
-  // Hàm bật webcam
   async function setupWebcam() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -46,12 +45,10 @@ const StreamAttendance: React.FC<StreamAttendanceProps> = ({ active }) => {
     }
   }
 
-  // useEffect bật/tắt webcam khi prop active thay đổi
   useEffect(() => {
     if (active) {
       setupWebcam();
     } else {
-      // Tắt webcam
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
@@ -59,14 +56,12 @@ const StreamAttendance: React.FC<StreamAttendanceProps> = ({ active }) => {
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
-      // Reset trạng thái
       setRecognitionData(null);
       setResultMessage("");
       setPauseCapture(false);
     }
   }, [active, t]);
 
-  // Dừng capture khi cần xác nhận
   useEffect(() => {
     if (recognitionData?.need_confirm) {
       setPauseCapture(true);

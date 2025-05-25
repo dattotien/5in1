@@ -9,8 +9,8 @@ interface Attendace {
   key: string;
   student_id: string;
   name: string;
-  create_at: string; // hiển thị
-  create_at_raw: string; // dùng để sort
+  create_at: string;
+  create_at_raw: string; 
 }
 
 const columns: ColumnsType<Attendace> = [
@@ -42,7 +42,6 @@ function Attendance() {
   const [Attendance, setAttendance] = useState<Attendace[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const exportToExcel = () => {
-    // Đổi tên trường thành tên cột hiển thị
     const data = Attendance.map((item) => ({
       STT: item.key,
       "Mã sinh viên": item.student_id,
@@ -107,7 +106,7 @@ function Attendance() {
             minute: "2-digit",
             second: "2-digit",
           }),
-          create_at_raw: item.create_at, // giữ nguyên chuỗi gốc để sort
+          create_at_raw: item.create_at, 
         }));
 
         setAttendance(dataWithName);

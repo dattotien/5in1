@@ -1,6 +1,5 @@
 /* RecognitionResult.css */
 .recognition-result {
-  /* Bỏ nền, viền, bo góc */
   padding: 16px 20px;
   box-sizing: border-box;
   font-family: Arial, sans-serif;
@@ -40,13 +39,12 @@
   color: #222;
 }
 
-/* Trạng thái điểm danh */
 .status.checked .value {
-  color: #16a34a; /* xanh lá - thành công */
+  color: #16a34a; 
   font-weight: 700;
 }
 
 .status.unchecked .value {
-  color: #dc2626; /* đỏ - chưa điểm danh */
+  color: #dc2626; 
   font-weight: 700;
 }

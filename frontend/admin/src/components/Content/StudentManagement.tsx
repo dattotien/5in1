@@ -17,7 +17,6 @@ import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 const { Text } = Typography;
 import "./StudentManagement.css";
-// ====== Kiểu dữ liệu ======
 interface Student {
   student_id: string;
   name: string;
@@ -68,7 +67,6 @@ const StudentManagementPage = () => {
       const fileObj = values.image?.[0]?.originFileObj;
 
       if (fileObj) {
-        // Nếu chọn ảnh mới
         image_base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = (e) => resolve(e.target?.result as string);
@@ -76,7 +74,6 @@ const StudentManagementPage = () => {
           reader.readAsDataURL(fileObj);
         });
       }
-      // Nếu không chọn ảnh mới, KHÔNG gửi image_base64 (backend sẽ giữ ảnh cũ)
 
       const studentData: any = {
         student_id: values.student_id,
@@ -124,7 +121,6 @@ const StudentManagementPage = () => {
         : record.full_name.split(" ")
       : ["", "", ""];
 
-    // Chuẩn bị ảnh cho Upload (nếu có)
     const imageFileList = record.image
       ? [
           {
@@ -175,21 +171,18 @@ const StudentManagementPage = () => {
       const file = values.image?.[0]?.originFileObj;
       let image_base64 = "";
       if (file) {
-        // Đọc file thành base64
         image_base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = (e) => resolve(e.target?.result as string);
           reader.onerror = reject;
-          reader.readAsDataURL(file); // sẽ ra dạng data:image/jpeg;base64,...
+          reader.readAsDataURL(file); 
         });
       }
-      // Ghép thông tin sinh viên
       const studentData = {
         student_id: values.student_id,
         name: values.ten,
         full_name: `${values.ho} ${values.dem} ${values.ten}`,
-        image_base64: image_base64, // truyền base64 vào đây
-        // Thêm các trường khác nếu cần
+        image_base64: image_base64, 
       };
 
       try {
@@ -200,8 +193,6 @@ const StudentManagementPage = () => {
         message.success("Thêm sinh viên thành công!");
         setModalOpen(false);
         form.resetFields();
-        // Reload lại danh sách sinh viên
-        // (Gọi lại fetchStudents hoặc reload)
         fetchStudents();
       } catch (error) {
         console.error(error);
@@ -343,7 +334,7 @@ const StudentManagementPage = () => {
                 <Upload
                   listType="picture"
                   maxCount={1}
-                  beforeUpload={() => false} // Ngăn upload tự động, chỉ lấy file trong form
+                  beforeUpload={() => false} 
                 >
                   <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                 </Upload>
@@ -399,12 +390,12 @@ const StudentManagementPage = () => {
                 <Upload
                   listType="picture"
                   maxCount={1}
-                  beforeUpload={() => false} // Ngăn upload tự động, chỉ lấy file trong form
+                  beforeUpload={() => false}
                 >
                   <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                 </Upload>
               </Form.Item>
-              {/* Thêm các trường khác nếu cần */}
+              {}
             </Form>
           </Modal>
         </div>
