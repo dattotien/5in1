@@ -112,7 +112,7 @@ docker-compose up -d
 - Admin Dashboard: [http://localhost:3001](http://localhost:5173/admin)
 - Backend API: http://localhost:8000/
 
-4. **Thông tin đăng nhập mặc định**
+3. **Thông tin đăng nhập mặc định**
 - **User**:
    - Username: haanh
    - Password: 23020353
