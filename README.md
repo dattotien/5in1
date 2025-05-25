@@ -1,7 +1,7 @@
 # HỆ THỐNG ĐIỂM DANH BẰNG KHUÔN MẶT
 
 Hệ thống điểm danh tự động sử dụng AI nhận diện khuôn mặt, được xây dựng với kiến trúc microservices hiện đại.
-Báo cáo Usecase: url.spa/xbf9f
+## Báo cáo Usecase: [url.spa/xbf9f](https://drive.google.com/file/d/1s9Doa7CDX_WKRS19gWJo0XjB2fkXDrnW/view?usp=sharing)
 
 ## 📑 Mục lục
 - [Tổng quan](#tổng-quan)
