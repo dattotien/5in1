@@ -88,8 +88,8 @@ Attendance Recording -> Real-time Update
 
 - Clone kho lưu trữ và chuyển vào thư mục dự án:
 ```bash
-git clone https://github.com/Hoangson1506/What-Kind-Of-Trash-Is-This.git
-cd What-Kind-Of-Trash-Is-This
+git clone [https://github.com/Hoangson1506/What-Kind-Of-Trash-Is-This.git](https://github.com/dattotien/5in1)
+cd 5in1
 ```
 - Khởi động máy chủ:
 ```bash
