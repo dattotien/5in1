@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.responses import StreamingResponse
-from backend.service.face_service import handle_face_upload, handle_stream
-from backend.service.model import device, mtcnn, resnet, load_encoding_from_students
+from service.face_service import handle_face_upload, handle_stream
+from service.model import device, mtcnn, resnet, load_encoding_from_students
 import asyncio
 import cv2
 import base64

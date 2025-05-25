@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from beanie import init_beanie
-from backend.api import auth, admin, student, attendance, user
-from backend.entities.student import Student
-from backend.entities.attendance import Attendance
-from backend.config.database import Database
-from backend.entities.user import User
-from backend.entities.message import Message
+from api import auth, admin, student, attendance, user
+from entities.student import Student
+from entities.attendance import Attendance
+from config.database import Database
+from entities.user import User
+from entities.message import Message
 
 app = FastAPI(title="Student Management API")
 app.add_middleware(

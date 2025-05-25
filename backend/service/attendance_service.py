@@ -1,7 +1,7 @@
-from backend.entities.attendance import Attendance
+from entities.attendance import Attendance
 from datetime import datetime, timedelta, date
-from backend.entities.student import Student
-from backend.service.face_service import (
+from entities.student import Student
+from service.face_service import (
     get_image_encoding,
     stream_face_recognition
 )

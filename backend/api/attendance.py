@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Body, WebSocket,
 from typing import List, Optional
 from datetime import date
 from pydantic import BaseModel
-from backend.entities.attendance import Attendance
+from entities.attendance import Attendance
 from datetime import datetime
 import asyncio
 import base64
@@ -11,14 +11,14 @@ import numpy as np
 import json
 from beanie import init_beanie
 import motor.motor_asyncio
-from backend.entities.student import Student
+from entities.student import Student
 
-from backend.service.face_service import (
+from service.face_service import (
     get_image_encoding,
     stream_face_recognition
 )
 
-from backend.service.attendance_service import (
+from service.attendance_service import (
     get_attendance_by_id,
     add_attendance,
     get_attendances,

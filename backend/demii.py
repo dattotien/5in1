@@ -1,4 +1,4 @@
-from backend.service.model import mtcnn, resnet, device, load_encoding_from_students
+from service.model import mtcnn, resnet, device, load_encoding_from_students
 import base64
 from fastapi import WebSocket, APIRouter, FastAPI
 import asyncio

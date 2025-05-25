@@ -1,6 +1,6 @@
-from backend.service.user_service import get_user_by_username
-from backend.core.security import verify_password, create_access_token
-from backend.entities.user import User
+from service.user_service import get_user_by_username
+from core.security import verify_password, create_access_token
+from entities.user import User
 
 async def authenticate_user(username: str, password: str):
     user = await get_user_by_username(username)

@@ -1,114 +1,153 @@
 # HỆ THỐNG ĐIỂM DANH BẰNG KHUÔN MẶT
-Dự án này là một mô hình của hệ thống điểm danh bằng khuôn mặt. Nó sử dụng các mô hình MTCNN và InceptionResNet-V1 để mô phỏng một hệ thống nhận dạng khuôn mặt. Dự án này dành cho mục đích điểm danh trong học tập.
-<!-- Mục lục -->
-<details>
-  <summary>Mục lục</summary>
-  <ol>
-    <li>
-      <a href="#Giới thiệu về dự án">Giới thiệu về dự án</a>
-      <ul>
-        <li><a href="#built-with">Được xây dựng bởi</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#Hướng dẫn cài đặt">Hướng dẫn cài đặt</a>
-      <ul>
-        <li><a href="#prerequisites">Điều kiện tiên quyết</a></li>
-        <li><a href="#installation">Cài đặt</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Cách sử dụng</a></li>
-    <li><a href="#roadmap">Kế hoạch phát triển</a></li>
-    <li><a href="#contributing">Đóng góp</a></li>
-    <li><a href="#acknowledgments">Lời cảm ơn</a></li>
-  </ol>
-</details>
+
+Hệ thống điểm danh tự động sử dụng AI nhận diện khuôn mặt, được xây dựng với kiến trúc microservices hiện đại.
+## Báo cáo Usecase: [url.spa/xbf9f](https://drive.google.com/file/d/1s9Doa7CDX_WKRS19gWJo0XjB2fkXDrnW/view?usp=sharing)
+
+## 📑 Mục lục
+- [Tổng quan](#tổng-quan)
+- [Kiến trúc hệ thống](#kiến-trúc-hệ-thống)
+- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
+- [Cài đặt và Chạy](#cài-đặt-và-chạy)
+- [Xử lý Lỗi](#xử-lý-lỗi)
+- [Backup & Restore](#backup--restore)
+
+## 🎯 Tổng quan
+
+### Tính năng chính
+- **Nhận diện khuôn mặt thời gian thực**: 
+  - MTCNN cho phát hiện và căn chỉnh khuôn mặt
+  - InceptionResNet-V1 cho trích xuất đặc trưng (512-d)
+  - Tối ưu với PyTorch và CUDA
+  
+- **Phát hiện đa khuôn mặt**: 
+  - Phát hiện nhiều khuôn mặt trong frame
+  - Điểm danh từng người một
+  - Ngưỡng nhận diện có thể điều chỉnh
+
+- **Xử lý dữ liệu thông minh**:
+  - Chuẩn hóa dữ liệu tự động
+  - Chống giả mạo khuôn mặt
+  - Mã hóa face embeddings
+
+## 🏗 Kiến trúc hệ thống
+
+```
+┌─────────────┐     ┌─────────────┐
+│   Frontend  │     │    Admin    │
+│  (Port 3000)│     │ (Port 3001) │
+└──────┬──────┘     └──────┬──────┘
+       │                   │
+       └─────────┬────────┘
+                 │
+         ┌───────┴───────┐
+         │    Backend    │
+         │  (Port 8000)  │
+         └───────┬───────┘
+                 │
+         ┌───────┴───────┐
+         │   MongoDB     │
+         │ (Port 27017)  │
+         └───────────────┘
+```
+
+### Công nghệ sử dụng
+- **Frontend**: React + TypeScript, Material-UI
+- **Backend**: FastAPI + Python 3.8
+- **Database**: MongoDB
+- **DevOps**: Docker, Nginx
+
+## 🔄 Quy trình Hoạt động
+
+**Quá trình Điểm Danh**:
+```
+Camera Stream (1.5s/frame) -> 
+MTCNN Face Detection (kiểm tra 1 khuôn mặt) -> 
+Face Alignment & Preprocessing -> 
+InceptionResNet-V1 Feature Extraction (512-d) -> 
+Face Matching với Dataset (threshold 0.8) -> 
+Attendance Recording -> Real-time Update
+```
+
+## 💾 Cấu trúc Dữ liệu
+
+### Database Collections (MongoDB)
+- **students**: Thông tin sinh viên và face embeddings
+- **attendance**: Lịch sử điểm danh
+- **message**: Lưu trữ thông báo hệ thống
+- **users**: Quản lý người dùng hệ thống
+
+## ⚙️ Yêu cầu hệ thống
+- Docker Engine (version 20.10.0+)
+- Docker Compose (version 2.0.0+)
+- Git
+
+## 🚀 Cài đặt và Chạy
+
+1. **Clone repository**
+```bash
+git clone <repository_url>
+cd <project_folder>
+```
+
+2. **Khởi động hệ thống**
+```bash
+docker-compose up -d
+```
+
+3. **Truy cập services**
+- Frontend: [http://localhost:3000](http://localhost:5173/)
+- Admin Dashboard: [http://localhost:3001](http://localhost:5173/admin)
+- Backend API: http://localhost:8000/
+
+4. **Thông tin đăng nhập mặc định**
+- **User**:
+   - Username: haanh
+   - Password: 23020353
+- **Admin**:
+   - Username: datto
+   - Password: 23020353
+
+## 🛠 Xử lý Lỗi
+
+### Kiểm tra logs
+```bash
+# Xem logs của tất cả services
+docker-compose logs
+
+# Xem logs của service cụ thể
+docker-compose logs backend
+```
+
+### Restart services
+```bash
+# Restart một service
+docker-compose restart backend
+
+# Restart toàn bộ hệ thống
+docker-compose restart
+```
+
+## 💾 Backup & Restore
+
+### Backup database
+```bash
+# Tạo backup
+docker exec attendance_mongodb mongodump --out /backup/$(date +%Y%m%d)
+```
+
+### Restore database
+```bash
+# Restore
+docker exec attendance_mongodb mongorestore --db Attendances /backup/Attendances
+```
+
+## 👥 Contributing
+- Chu Thị Phương Anh: Backend
+- Đặng Minh Nguyệt: Model Developer
+- Tô Tiến Đạt: Admin Frontend
+- Nguyễn Thị Minh Ly: User Frontend
+- Phạm Hà Anh: Database + Docker
 
 
-## Giới thiệu về dự án
-Dự án này là một mô hình của hệ thống điểm danh bằng khuôn mặt dành cho môi trường học tập. Nó sử dụng các mô hình MTCNN và InceptionResNet-V1 để mô phỏng quy trình nhận dạng khuôn mặt nhằm phục vụ mục đích điểm danh. Hệ thống bao gồm nhiều thành phần:
-
-- **Backend**: Xử lý API, chạy mô hình AI để nhận diện khuôn mặt/biển số, kết nối và lưu trữ kết quả vào cơ sở dữ liệu.
-- **Frontend**: Giao diện người dùng chính để gửi ảnh/video lên backend và hiển thị kết quả nhận diện theo thời gian thực.
-- **Admin-Frontend**: Giao diện quản trị (có thể tách riêng hoặc tích hợp chung với frontend) để quản lý người dùng, xem log, và chỉnh sửa dữ liệu trong cơ sở dữ liệu.
-- **Docker Compose**: Tập hợp các service thành một môi trường đồng nhất, dễ triển khai.
-
-## Hướng dẫn cài đặt
-
-### 1. Điều kiện tiên quyết
-Trước khi bắt đầu, hãy đảm bảo hệ thống của bạn đã cài đặt đủ các phần mềm sau:
-- **Python 3.8+** 
-- **Docker** và **Docker Compose** 
-- **Git**
-
-### 2.Cài đặt
-#### Cài đặt Docker Compose
-
-## Cách sử dụng
-
-### 1. Đăng ký khuôn mặt (Register)
-1. Truy cập giao diện người dùng: http://localhost:
-2. Cho phép trình duyệt truy cập webcam.  
-- Đảm bảo khuôn mặt hiển thị gần hết khung hình, không bị che khuất.
-3. Nhấn nút **“.....”** hoặc **“.....”** để frontend gửi ảnh lên backend.
-4. Backend thực hiện kiểm tra:
-- Kiểm tra có ít nhất một khuôn mặt rõ ràng (sử dụng MTCNN).  
-- Nếu ảnh hợp lệ, backend chạy InceptionResNet-V1 để trích xuất `face_encoding`.  
-- Lưu `face_encoding` cùng thông tin người dùng vào cơ sở dữ liệu.
----
-
-### 2. Điểm danh (Attendance)
-1. Truy cập giao diện điểm danh:  http://localhost:
-2. Cho phép trình duyệt truy cập webcam.  
-- Hệ thống liên tục quét khuôn mặt theo thời gian thực.
-3. Khi phát hiện khuôn mặt, backend so khớp với `face_encoding` đã lưu:
-- Nếu khớp, ghi nhận lịch sử điểm danh và trả về tên/sinh viên.  
-- Nếu không khớp, hiển thị thông báo **“Không nhận diện được”**.
-
----
-
-### 3. Giao diện quản trị (Admin)
-1. Truy cập:.... Sau đó đăng nhập bằng tài khoản admin
-2. Các chức năng chính:
-- **Quản lý danh sách người dùng** (thêm, sửa, xóa).  
-- **Chỉnh sửa dữ liệu trực tiếp** (nếu cần).
-
-3. Các API liên quan:
-- `GET /api/users`  
-  Lấy danh sách người dùng.
-- `POST /api/users`  
-  Tạo mới người dùng (kèm `face_encoding`).
-- `GET /api/attendance`  
-  Lấy log điểm danh.
-- `DELETE /api/users/:id`  
-  Xóa người dùng, v.v.
-
----
-## Kế hoạch phát triển
-
-Dưới đây là một số ý tưởng nâng cấp và tính năng sẽ phát triển trong tương lai:
-
-### 1. **Cải thiện độ chính xác**  
-- Tìm hiểu và tinh chỉnh tham số của MTCNN để phát hiện khuôn mặt trong điều kiện ánh sáng kém hoặc góc nghiêng.  
-- Cập nhật InceptionResNet-V1 hoặc thử nghiệm các mô hình mới hơn (FaceNet, ArcFace) để nâng cao độ chính xác.
-
-### 2. **Hỗ trợ nhận dạng nhiều khuôn mặt cùng lúc**  
-- Khi có nhiều sinh viên cùng điểm danh trong một khung hình, thiết lập cơ chế nhận dạng đa khuôn mặt và lưu log cho từng người.
-
-### 3. **Tích hợp thông báo thời gian thực**  
-- Sử dụng WebSocket hoặc Socket.IO để đẩy kết quả điểm danh ngay lập tức vào màn hình hiển thị trên dashboard.
-
-### 5. **Ứng dụng di động (Mobile App)**  
-- Phát triển app iOS/Android, tích hợp camera điện thoại để điểm danh di động, kết nối API backend.
-
-### 6. **Báo cáo & thống kê nâng cao**  
-- Tích hợp biểu đồ thống kê số lượng điểm danh theo tháng, ngày, tiết học.  
-- Hỗ trợ xuất báo cáo PDF/Excel.
-
-### 7. **Bảo mật & phân quyền**  
-- Xây dựng hệ thống xác thực (JWT/OAuth2) cho backend API.  
-- Phân quyền admin, giảng viên, sinh viên khác nhau, giới hạn quyền truy cập API.
-
----
 
 
