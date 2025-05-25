@@ -12,7 +12,7 @@ type RequestType = {
   create_at: string;
   handled_at?: string;
   response?: string;
-  full_name?: string; // Thêm nếu có
+  full_name?: string; 
 };
 
 function FeedBackResponse() {

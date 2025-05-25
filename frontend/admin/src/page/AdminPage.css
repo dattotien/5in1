@@ -62,8 +62,8 @@
   font-size: 15px;
   position: absolute;
   bottom: 4vh;
-  left: 50%; /* cách đáy 20px */ /* đẩy ra giữa */
-  transform: translateX(-50%); /* căn giữa theo chiều ngang */
+  left: 50%; 
+  transform: translateX(-50%);
 }
 
 .header {

@@ -28,7 +28,7 @@ const AttendanceTabs: React.FC = () => {
         size="middle"
       >
         <TabPane tab={t("tabs.live")} key="stream">
-          {/* Truyền prop active: true khi tab đang là stream */}
+          {}
           <StreamAttendance active={activeTab === "stream"} />
         </TabPane>
 

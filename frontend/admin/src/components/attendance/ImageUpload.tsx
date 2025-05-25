@@ -15,7 +15,7 @@ interface RecognitionData {
 }
 
 export default function ImageUpload() {
-  const { t } = useTranslation(); // <-- Thêm hook
+  const { t } = useTranslation(); 
   const [image, setImage] = useState<string | null>(null);
   const [recognized, setRecognized] = useState(false);
   const [file, setFile] = useState<File | null>(null);
