@@ -1,6 +1,14 @@
 # HỆ THỐNG ĐIỂM DANH BẰNG KHUÔN MẶT
 
 Hệ thống điểm danh tự động sử dụng AI nhận diện khuôn mặt, được xây dựng với kiến trúc microservices hiện đại.
+
+## 👥 Thành viên
+- Chu Thị Phương Anh: Backend
+- Đặng Minh Nguyệt: Model Developer
+- Tô Tiến Đạt: Admin Frontend
+- Nguyễn Thị Minh Ly: User Frontend
+- Phạm Hà Anh: Database + Docker
+
 ## Báo cáo Usecase: [url.spa/xbf9f](https://drive.google.com/file/d/1s9Doa7CDX_WKRS19gWJo0XjB2fkXDrnW/view?usp=sharing)
 
 ## 📑 Mục lục
@@ -154,12 +162,6 @@ docker exec attendance_mongodb mongodump --out /backup/$(date +%Y%m%d)
 docker exec attendance_mongodb mongorestore --db Attendances /backup/Attendances
 ```
 
-## 👥 Contributing
-- Chu Thị Phương Anh: Backend
-- Đặng Minh Nguyệt: Model Developer
-- Tô Tiến Đạt: Admin Frontend
-- Nguyễn Thị Minh Ly: User Frontend
-- Phạm Hà Anh: Database + Docker
 
 
 
