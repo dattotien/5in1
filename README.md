@@ -83,18 +83,31 @@ Attendance Recording -> Real-time Update
 
 ## 🚀 Cài đặt và Chạy
 
-1. **Clone repository**
-```bash
-git clone <repository_url>
-cd <project_folder>
-```
+1. **Không sử dụng Docker Hub**
+   Hướng dẫn từng bước để thiết lập dự án trên máy cục bộ.
 
-2. **Khởi động hệ thống**
+- Clone kho lưu trữ và chuyển vào thư mục dự án:
+```bash
+git clone https://github.com/Hoangson1506/What-Kind-Of-Trash-Is-This.git
+cd What-Kind-Of-Trash-Is-This
+```
+- Khởi động máy chủ:
 ```bash
 docker-compose up -d
 ```
 
-3. **Truy cập services**
+2. **Sử dụng Docker Hub**
+- Down image từ Docker Hub:
+```bash
+docker pull haanh05/thptht-admin
+docker pull haanh05/thptht-backend
+```
+- Lưu tệp docker-compose.yml được cung cấp.
+- Chạy hệ thống:
+```bash
+docker-compose up -d
+```
+ ***Truy cập services***
 - Frontend: [http://localhost:3000](http://localhost:5173/)
 - Admin Dashboard: [http://localhost:3001](http://localhost:5173/admin)
 - Backend API: http://localhost:8000/
